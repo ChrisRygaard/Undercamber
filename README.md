@@ -20,7 +20,7 @@ The architecture of Undercamber&trade; addresses all of these issues and others 
 
 To begin using Undercamber&trade;:
 <ol>
-   <li>Download UndercamberUsersGuide.docx</li>
+   <li>Download the User's Guide, UndercamberUsersGuide.pdf</li>
    <li>Download Undercamber.jar (<b>Note:</b> it is not a stand-alone JAR file; see the User's Guide).</li>
    <li>Run the examples in the User's Guide</li>
 </ol>
