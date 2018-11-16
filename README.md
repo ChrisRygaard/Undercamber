@@ -1,7 +1,7 @@
 # Undercamber
 
 This is the Undercamber&trade; test framework for Java.  It is a unique approach to testing, with these features:
-   - An automatically generated GUI for quickly selecting subsets of test to be run,
+   - An automatically generated hierarchical GUI for quickly selecting subsets of tests to be run, and fully automated testing without a GUI.
    - Simple programming via a traditional API to support unique or unusual testing strategies,
    - Powerful and simple support for running a test's prerequisites, including skipping setups that have already been performed prior to execution (such as from a previous run), and
    - Support for testing in multiple different JVMs in a single run.
@@ -16,7 +16,12 @@ Undercamber was built to address frustration with existing test systems.  In par
    - In many other systems the order of execution is not well defined.
    - There can be a long learing curve with other test frameworks.
 
-The unique architecture of Undercamber&trade; addresses all of these issues and others with a unique but surprisingly simple approach.  To begin using Undercamber&trade;, see the UndercamberUsersGuide.docx.
+The architecture of Undercamber&trade; addresses all of these issues and others with a unique but surprisingly simple approach.
+
+To begin using Undercamber&trade;:
+   (1) Download UndercamberUsersGuide.docx
+   (2) Download Undercamber.jar (<b>Note:</b> it is not a stand-alone JAR file; see the User's Guide).
+   (3) Run the examples in the User's Guide
 
 The Undercamber&trade; test framework is provided free of charge by Rygaard Technologies, LLC. under the BSD 3-clause license.
 
