@@ -16,7 +16,7 @@ Undercamber was built to address frustration with existing test systems.  In par
    - In many other systems the order of execution is not well defined.
    - There can be a long learing curve with other test frameworks.
 
-The unique architecture of Undercamber&trade; addresses all of these issues and others with a unique but surprisingly simple approach.  To begin using Undercamber&trade;, see the User's Guide in Documents/UserGuide/UndercamberUsersGuide.docx
+The unique architecture of Undercamber&trade; addresses all of these issues and others with a unique but surprisingly simple approach.  To begin using Undercamber&trade;, see the UndercamberUsersGuide.docx.
 
 The Undercamber&trade; test framework is provided free of charge by Rygaard Technologies, LLC. under the BSD 3-clause license.
 
