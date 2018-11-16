@@ -1,0 +1,105 @@
+<project name="Undercamber" default="All">
+
+   <description>
+      Product build file
+   </description>
+
+   <property environment="env"/>
+
+   <target name="Clean">
+      <delete>
+         <fileset dir="${basedir}">
+            <include name="**/*.class"/>
+         </fileset>
+      </delete>
+   </target>
+
+   <target name="CompileProduct"
+           description="Compile Undercamber"
+           depends="Clean">
+      <javac debug="on"
+             includeantruntime="false"
+             srcdir="Source"
+             deprecation="on">
+         <compilerarg value="-Xlint:all"/>
+         <compilerarg value="-Werror"/>
+         <compilerarg line="-Xmaxerrs 1000"/>
+      </javac>
+   </target>
+
+   <target name="MakeJARs"
+          depends="CompileProduct"
+          description="Make JARs">
+      <javac debug="on"
+             includeantruntime="false"
+             srcdir="Libraries/utilities"
+             deprecation="on">
+         <compilerarg value="-Xlint:all"/>
+         <compilerarg value="-Werror"/>
+         <compilerarg line="-Xmaxerrs 1000"/>
+      </javac>
+      <java classname="com.rygaardtechnologies.utilities.UndercamberJARMaker">
+         <classpath>
+            <pathelement location="Libraries/utilities"/>
+         </classpath>
+      </java>
+   </target>
+
+   <target name="CompileTests"
+           description="Compile Tests"
+           depends="MakeJARs">
+      <javac debug="on"
+             includeantruntime="false"
+             srcdir="Test"
+             deprecation="on">
+         <compilerarg value="-Xlint:all"/>
+         <compilerarg value="-Werror"/>
+         <compilerarg line="-Xmaxerrs 1000"/>
+         <classpath>
+            <pathelement location="Source"/>
+         </classpath>
+      </javac>
+   </target>
+
+   <target name="CompileSamples"
+           description="Compile Samples"
+           depends="CompileProduct">
+      <javac debug="on"
+             includeantruntime="false"
+             srcdir="Test"
+             deprecation="on">
+         <compilerarg value="-Xlint:all"/>
+         <compilerarg value="-Werror"/>
+         <compilerarg line="-Xmaxerrs 1000"/>
+         <classpath>
+            <pathelement location="Samples"/>
+         </classpath>
+      </javac>
+   </target>
+
+   <target name="MakeDocs">
+      <delete dir="Documents/JavaDocs"/>
+      <javadoc packagenames="com.undercamber.*"
+               destdir="Documents/JavaDocs"
+               access="public"
+               verbose="false"
+               header="Undercamber(TM) Documentation"
+               footer="Undercamber(TM) Documentation"
+               doctitle="Undercamber(TM) Documentation"
+               windowtitle="Undercamber(TM) Documentation"
+               use="true"
+               additionalparam="-quiet">
+         <classpath>
+            <pathelement location="Source"/>
+         </classpath>
+         <sourcepath>
+             <pathelement location="Source"/>
+         </sourcepath>
+      </javadoc>
+   </target>
+
+   <target name="All"
+           depends="CompileProduct,CompileTests,CompileSamples,MakeJARs,MakeDocs"
+           description="Compile all of the product"/>
+
+</project>

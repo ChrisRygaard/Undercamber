@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:element name="UndercamberTestReport">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="name"              type="xs:string"                                 />
+            <xs:element name="pass1ThreadCount"  type="xs:positiveInteger"                        />
+            <xs:element name="testSet"           type="testSetType"          maxOccurs="unbounded"/>
+            <xs:element name="requirements"      type="requirementsListType"                      />
+            <xs:element name="tags"              type="tagSectionType"                            />
+            <xs:element name="unsupportiveTests" type="testReferenceList"                         />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:complexType name="testSetType">
+      <xs:sequence>
+         <xs:element name="name"              type="xs:string"         />
+         <xs:element name="configurationFile" type="xs:string"         />
+         <xs:element name="pass2ThreadCount"  type="xs:positiveInteger"/>
+         <xs:element name="jvmCommand"        type="xs:string"         />
+         <xs:element name="javaParameters"    type="parameterListType" />
+         <xs:element name="testParameters"    type="parameterListType" />
+         <xs:element name="test"              type="testType"          />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="parameterListType">
+      <xs:sequence>
+         <xs:element name="parameter" type="parameterType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="parameterType">
+      <xs:attribute name="value" type="xs:string"/>
+   </xs:complexType>
+
+   <xs:complexType name="testType">
+      <xs:sequence>
+         <xs:element name="testID"                   type="xs:integer"                     />
+         <xs:element name="name"                     type="xs:string"                      />
+         <xs:element name="result"                   type="resultType"                     />
+         <xs:element name="errorCount"               type="xs:nonNegativeInteger"          />
+         <xs:element name="subtestSequencingMode"    type="subtestSequencingModeType"      />
+         <xs:element name="subtestContinuationMode"  type="subtestContinuationModeType"    />
+         <xs:element name="errorsAndMessages"        type="errorsAndMessagesType"          />
+         <xs:element name="validatedRequirements"    type="requirementReferenceListType"   />
+         <xs:element name="supportedRequirements"    type="requirementReferenceListType"   />
+         <xs:element name="prerequisiteDeclarations" type="prerequisiteDeclarationListType"/>
+         <xs:element name="prerequisites"            type="testReferenceList"              />
+         <xs:element name="dependents"               type="testReferenceList"              />
+         <xs:element name="tags"                     type="tagListType"                    />
+         <xs:element name="subtests"                 type="subtestListType"                />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name="resultType" final="restriction">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="NOT_RUN"                          />
+         <xs:enumeration value="UNINITIALIZED"                    />
+         <xs:enumeration value="INITIALIZED"                      />
+         <xs:enumeration value="RUNNING_SUBTESTS"                 />
+         <xs:enumeration value="SKIPPED_DUE_TO_PARENT_ERROR"      />
+         <xs:enumeration value="SKIPPED_DUE_TO_PREREQUISITE_ERROR"/>
+         <xs:enumeration value="SKIPPED_DUE_TO_SIBLING_ERROR"     />
+         <xs:enumeration value="SKIPPED_BY_USER"                  />
+         <xs:enumeration value="COMPLETE_SUCCEEDED"               />
+         <xs:enumeration value="COMPLETE_FAILED"                  />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="subtestSequencingModeType" final="restriction">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="CONCURRENT"                        />
+         <xs:enumeration value="SEQUENTIAL_ABORT_SEQUENCE_ON_ERROR"/>
+         <xs:enumeration value="SEQUENTIAL_CONTINUE_ON_ERROR"      />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="subtestContinuationModeType" final="restriction">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="RUN_SUBTESTS_IF_LOCAL_TESTS_FAIL" />
+         <xs:enumeration value="SKIP_SUBTESTS_IF_LOCAL_TESTS_FAIL"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="errorsAndMessagesType">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:choice>
+            <xs:sequence>
+               <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+            <xs:sequence>
+               <xs:element name="exception" type="xs:string"/>
+            </xs:sequence>
+         </xs:choice>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="requirementReferenceListType">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="requirementID" type="xs:string"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="prerequisiteDeclarationListType">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="prerequisiteDeclaration" type="prerequisiteDeclarationType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="prerequisiteDeclarationType">
+      <xs:sequence>
+         <xs:element  name="className"       type="xs:string"/>
+         <xs:element  name="methodName"      type="xs:string"/>
+         <xs:sequence>
+            <xs:element name="argument"      type="xs:string" minOccurs="0" maxOccurs="1"/>
+         </xs:sequence>
+         <xs:element  name="includeSubtests" type="includeSubtestType"/>
+         <xs:element  name="type"            type="prerequisiteType"/>
+         <xs:element  name="multiplicity"    type="prerequisiteMultiplicityType"/>
+         <xs:element  name="testSets"        type="testSetNameListType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name="includeSubtestType" final="restriction">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="INCLUDE_SUBTESTS"     />
+         <xs:enumeration value="DONT_INCLUDE_SUBTESTS"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="prerequisiteType" final="restriction">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="FIXED"                               />
+         <xs:enumeration value="CONDITIONAL_NOT_PREVIOUSLY_SATISFIED"/>
+         <xs:enumeration value="CONDITIONAL_PREVIOUSLY_SATISFIED"    />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="prerequisiteMultiplicityType" final="restriction">
+      <xs:restriction base="xs:string">
+          <xs:enumeration value="INCLUDE_ALL_MATCHING_METHODS"/>
+          <xs:enumeration value="INCLUDE_FIRST_MATCHING_METHOD"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="testSetNameListType">
+      <xs:sequence>
+         <xs:element name="testSet" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="argumentType">
+      <xs:sequence minOccurs="0" maxOccurs="1">
+         <xs:element name="argument" type="tagType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="tagListType">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="tag" type="tagType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="tagType">
+      <xs:sequence>
+         <xs:element name="name"            type="xs:string"/>
+         <xs:element name="includeSubtests" type="booleanType"  />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name="booleanType" final="restriction">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="true" />
+         <xs:enumeration value="false"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="subtestListType">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="test" type="testType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="requirementsListType">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="requirement" type="requirementType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="requirementType">
+      <xs:sequence>
+         <xs:element name="id"               type="xs:string" />
+         <xs:element name="description"      type="xs:string" />
+         <xs:element name="completionStatus" type="resultType"/>
+         <xs:element name="result"           type="xs:string" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="tagSectionType">
+      <xs:sequence maxOccurs="unbounded">
+         <xs:element name="tag" type="tagSetType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="tagSetType">
+      <xs:sequence maxOccurs="unbounded">
+         <xs:element name="taggedTest" type="taggedTestType"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
+   </xs:complexType>
+
+   <xs:complexType name="taggedTestType">
+      <xs:sequence>
+         <xs:element name="testID"          type="xs:integer" />
+         <xs:element name="includeSubtests" type="booleanType"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="testReferenceList">
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="testID" type="xs:integer"/>
+      </xs:sequence>
+   </xs:complexType>
+
+</xs:schema>
