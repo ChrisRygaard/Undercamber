@@ -25,6 +25,8 @@ To begin using Undercamber&trade;:
    <li>Run the examples in the User's Guide</li>
 </ol>
 
+<a href="http://www.Undercamber.com/">Visit the Undercamber home page</a>.
+
 The Undercamber&trade; test framework is provided free of charge by Rygaard Technologies, LLC. under the BSD 3-clause license.
 
 &quot;Undercamber&quot; is a trademark of Rygaard Technologies, LLC.
