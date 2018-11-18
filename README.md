@@ -4,7 +4,7 @@ This is the Undercamber&trade; test framework for Java.  It is a unique approach
    - An automatically generated hierarchical GUI for quickly selecting subsets of tests to be run, and fully automated testing without a GUI,
    - Simple programming via a traditional API to support unique or unusual testing strategies,
    - Powerful and simple support for running a test's prerequisites, including skipping setups that have already been performed prior to execution (such as from a previous run), and
-   - Support for testing in multiple different JVMs in a single run.
+   - Support for testing different versions of the Unit Under Test (UUT) and different versions of JVMs in a single run.
 
 Undercamber was built to address frustration with existing test systems.  In particular, it addresses these issues:
    - Other systems require implementing and tuning byzantine annotations.
