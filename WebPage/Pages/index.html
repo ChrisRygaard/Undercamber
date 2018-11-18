@@ -1,189 +1,218 @@
-<center><img src="images/Logo0256.png" id="top"/></center>
-Undercamber&trade; is a Java-based software test automation framework, with these advantages:
-<ul>
-   <li>Supports agile development,</li>
-   <li>Short learning curve</li>
-   <li>Programmed in Java, without any scripting,</li>
-   <li>No need to learn arcane annotations,</li>
-   <li>Unit tests, regression tests, system tests, and acceptances are managed in the same way, in the same framework, with a common configuration,</li>
-   <li>Sophisticated and dynamic networks of prerequisites are easy to implement and maintain,</li>
-   <li>Trap most test configuration issues at compile time, and</li>
-   <li>Trap all remaining test configuration issues immediately on launch.</li>
-   <li>Simple and effective concurrency control.</li>
-</ul>
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Undercamber Test Framework</title>
+   </head>
+   <body>
 
-To achieve these goals, Undercamber has a unique self-configuring GUI that the tester can use to quickly select and run a subset of tests:<p>
-<center><img src="images/BasicGUI.png" width="589" height="283"/></center><p>
+      <table summary="description" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;" width="100%" id="top">
+         <tr>
+            <td style="width:33%"></td>
+            <td style="width:33%"><center><img src="images/Logo0256.png"/></center></td>
+            <td style="width:33%"><div align="right"><a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="148" height="38"/></a></div></td>
+         </tr>
+      </table>
 
-<h1>Undercamber Features</h1>
-Undercamber addresses several aspects of testing that are unique to an agile environment, including:
+      Undercamber&trade; is a Java-based software test automation framework, with these advantages:
+      <ul>
+         <li>An automatically generated hierarchical GUI for quickly selecting an ad-hoc subset of tests to be run, and fully automated testing without a GUI,</li>
+         <li>Simple programming via a traditional API to support unique or unusual testing strategies,</li>
+         <li>Powerful and simple support for running a test's prerequisites, including skipping setups that have already been performed prior to execution (such as from a previous run), and</li>
+         <li>Support for testing different versions of the Unit Under Test (UUT) and different versions of JVMs in a single run.</li>
+         <li>Simple and effective concurrency control.</li>
+         <li>Short learning curve</li>
+      </ul>
 
-<ol>
-   <li><a href="#SubsetSelection">Subset Selection</a>,</li>
-   <li><a href="#SelfConfiguration">Self-configuration</a>,</li>
-   <li><a href="#TightIntegration">Tight integration with the development workflow</a>,</li>
-   <li><a href="#TestAutomation">Test automation</a>, and</li>
-   <li><a href="#Prerequisites">Test Setup and Prerequisites</a>.</li>
-</ol>
+      Undercamber has a unique self-configuring GUI that the tester can use to quickly select and run an ad-hoc subset of tests:<p>
+      <center><img src="images/BasicGUI.png" width="589" height="283"/></center><p>
 
-<h2 id="SubsetSelection">Subset Selection</h2>
+      <a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="148" height="38"/></a>
 
-When working in a customer-driven environment, requirements, goals and priorities can change.  Sometimes rapidly.  A developer might be working on
-one part of the product in the morning, and working on a completely different part of the product that afternoon.<p>
+      <h1>Undercamber Features</h1>
+      Undercamber addresses several aspects of testing that are unique to an agile environment, including:
 
-To support such development, the programmer needs to quickly select a subset of the full regression test suite to perform tests that are relevant
-to the work at hand.  For example:
-<ul>
-   <li>When working code to validate user input, the developer does not want to waste time running tests to verify persistence.</li>
-   <li>When working on an interface to third-parte libraries, the developer does not want to waste time running tests to validate user input.</li>
-</ul>
+      <h2 id="SubsetSelection">Ad Hoc Subset Selection</h2>
 
-For a test framework to properly support an agile environment, it must be easy for a developer to quickly select an appropriate subset of the tests
-to run, and then re-use that subset of tests quickly and painlessly.<p>
+      When working in a customer-driven environment, requirements, goals and priorities can change.  Sometimes rapidly.  A developer might be working on
+      one part of the product in the morning, and working on a completely different part of the product that afternoon.<p>
 
-Toward this goal, Undercamber presents a GUI with a hierarchical tree of tests as shown above.<p>
+      To support such development, the programmer needs to quickly select a subset of the full regression test suite to perform tests that are relevant
+      to the work at hand.  For example:
+      <ul>
+         <li>When working code to validate user input, the developer does not want to waste time running tests to verify persistence.</li>
+         <li>When working on an interface to third-parte libraries, the developer does not want to waste time running tests to validate user input.</li>
+      </ul>
 
-<a href="#top">Return to top</a>
+      For a test framework to properly support an agile environment, it must be easy for a developer to quickly select an appropriate subset of the tests
+      to run, and then re-use that subset of tests quickly and painlessly.  Toward this goal, Undercamber presents a GUI with a hierarchical tree of tests as shown above.<p>
 
-<h2 id="SelfConfiguration">Self-Configuration</h2>
+      The GUI is automatically created, updated, and configured completely automatically.<p>
 
-When adding, updating, or removing features to the end product, the test suite should be updated accordingly.  When a developer updates the test
-source code, the test automation framework should automatically configure itself without intervention from the developer.<p>
+      <a href="#top">Return to top</a>
 
-Undercamber is self-configuring.  It deduces the test structure from the test code, and uses that to drive the GUI.  Consider this test code:
-<pre>
-      public class MyTests
-         implements TestUnit
-      {
-         public void runTest( TestManager testManager )
-            throws Throwable
-         {
-            boolean verify;
-            MyBank  bank;
+      <h2 id="SelfConfiguration">Self-Configuration</h2>
 
-            verify = testManager.initialize();
-            if ( verify )
+      When adding, updating, or removing features to the end product, the test suite should be updated accordingly.  When a developer updates the test
+      source code, the test automation framework should automatically configure itself without intervention from the developer.<p>
+
+      Undercamber is self-configuring.  It deduces the test structure from the test code, and uses that to drive the GUI.  Consider this test code:
+      <pre>
+            public class MyTests
+               implements TestUnit
             {
-               bank = new MyBank();
-            }
-            else
-            {
-               bank = null;
-            }
-            testManager.addSubtest( tm -> testAccountCreation(tm,
-                                                              bank) );
-            testManager.addSubtest( tm -> testDeposit(tm,
-                                                      bank) );
-         }
+               public void runTest( TestManager testManager )
+                  throws Throwable
+               {
+                  boolean verify;
+                  MyBank  bank;
 
-         void testAccountCreation( TestManager testManager,
-                                   MyBank      bank )
-            throws Throwable
-         {
-            boolean verify;
+                  verify = testManager.initialize();
+                  if ( verify )
+                  {
+                     bank = new MyBank();
+                  }
+                  else
+                  {
+                     bank = null;
+                  }
+                  testManager.addSubtest( tm -> testAccountCreation(tm,bank) );
+                  testManager.addSubtest( tm -> testDeposit(tm,bank) );
+               }
 
-            verify = testManager.initialize();
-            if ( verify )
-            {
-               bank.createAccount( "Bill" );
-            }
-         }
+               void testAccountCreation( TestManager testManager, MyBank bank )
+                  throws Throwable
+               {
+                  boolean verify;
 
-         void testDeposit( TestManager testManager,
-                           MyBank      bank )
-            throws Throwable
-         {
-            boolean verify;
+                  verify = testManager.initialize();
+                  if ( verify )
+                  {
+                     bank.createAccount( "Bill" );
+                  }
+               }
 
-            verify = testManager.initialize();
-            if ( verify )
-            {
-               bank.deposit( "Bill",
-                             100 );
-            }
-            testManager.addSubtest( tm -> testWithdraw(tm,
-                                                       bank) );
-         }
+               void testDeposit( TestManager testManager, MyBank bank )
+                  throws Throwable
+               {
+                  boolean verify;
 
-         void testWithdraw( TestManager testManager,
-                            MyBank      bank )
-            throws Throwable
-         {
-            boolean verify;
+                  verify = testManager.initialize();
+                  if ( verify )
+                  {
+                     bank.deposit( "Bill", 100 );
+                  }
+                  testManager.addSubtest( tm -> testWithdraw(tm,bank) );
+               }
 
-            verify = testManager.initialize();
-            if ( verify )
-            {
-               bank.deposit( "Bill",
-                             -50 );
-            }
-         }
-      }</pre>
+               void testWithdraw( TestManager testManager, MyBank bank )
+                  throws Throwable
+               {
+                  boolean verify;
 
-The above test code produces this GUI without any scripting or annotations:
-<center><a href="index.html"><img src="images/SimpleSetup.png" alt="Undercamber Logo"/></a></center>
+                  verify = testManager.initialize();
+                  if ( verify )
+                  {
+                     bank.withdraw( "Bill", 50 );
+                  }
+               }
+            }</pre>
 
-<a href="#top">Return to top</a>
+      The above test code produces this GUI without any scripting or annotations:
+      <center><a href="index.html"><img src="images/SimpleSetup.png" alt="Undercamber Logo"/></a></center>
 
-<h2 id="TightIntegration">Tight Integration Into the Development Workflow</h2>
+      <h3 id="TestAutomation">Test Automation</h3>
 
-Undercamber is ordinary Java, and is programmed with a few, simple ordinary Java calls, meaning it will naturally integrate well with any IDE or automation tools.<p>
+      In an agile environment, a test engineer needs to automate the tests, without any user intervention and without a GUI.<p>
 
-<a href="#top">Return to top</a>
+      Although Undercamber can be run with a GUI, it also has a variety of techniques to quickly and easily specify subsets
+      of tests for automated execution.  Once the subset of tests specified, there is very little maintenance in maintaining
+      the list as tests are added, updated and removed from the system.<p>
 
-<h2 id="TestAutomation">Test Automation</h2>
+      These subsets of tests (or all of the tests) can be easily invoked from the operating system command-line without
+      displaying the GUI.<p>
 
-In an agile environment, a test engineer needs to automate the tests, without any user intervention and without a GUI.<p>
+      <a href="#top">Return to top</a>
 
-Undercamber has a variety of techniques to quickly and easily set up subsets of tests that can be invoked from an operating-system level script or
-batch file.  Once the subset of tests is selected, there is very little maintenance in maintaining the list as tests are added, updated and
-removed from the system.<p>
+      <h2 id="API">API Programming</h2>
 
-It is also easy to launch all of the tests from a script or batch file.<p>
+      As illustrated above, Undercamber is programmed entirely through a simple API, without configuration files and without
+      annotations.  This allows the test developer to create testing strategies that are not anticipated by the framework.<p>
 
-<a href="#top">Return to top</a>
+      By using an API, unusual testing strategies are easy to program:
+      <ul>
+         <li>Testing in a loop uses ordinary Java looping techniques (such as <tt>for</tt>, <tt>do</tt>, and <tt>while</tt> loops.)</li>
+         <li>Optional testing can be implemented using ordinary Java conditional programming (such as <tt>if</tt> blocks)</li>
+         <li>Method calls can be made wherever needed</li>
+         <li>Any and all other Java programming techniques are available to the test developer</li>
+      </ul>
 
-<h2 id="Prerequisites">Test Setup and Prerequisites</h2>
+      Java developers are already familiar with Java techniques (obviously), so the Undercamber learning curve is quite short.
+      Developers do not need to learn a new annotation scheme, and do not need to learn a new configuration file format.
 
-In all but the simplest scenarios, a software test will require some setup prior to execution.<p>
+      <h3 id="TightIntegration">Tight Integration Into the Development Workflow</h3>
 
-In Undercamber, such a prerequisite is just like an ordinary test.  The only difference is that it
-must be completed before its dependent test is run.  Because a prerequisite is itself just another
-test, a prerequisite can have its own prerequisites.<p>
+      Because Undercamber programmed with ordinary Java, it will naturally integrate well with any IDE or automation tools.<p>
 
-Undercamber has several types of prerequisites, some of which are implicit in the test structure,
-and other which are explicitly specified by the test developer.  This makes it easy to construct
-sophisticated networks of setup functions and prerequisites, and such a network requires very
-little maintenance as tests are added and removed from the system.<p>
+      <a href="#top">Return to top</a>
 
-<h3>Dynamic Prerequisites</h3>
+      <h2 id="Prerequisites">Test Setup and Prerequisites</h2>
 
-In addition, Undercamber supports dynamic prerequisites, that may or may not be run depending on
-whether the prerequisites are satisfied prior to running Undercamber.<p>
+      In all but the simplest scenarios, a software test will require some setup prior to execution.<p>
 
-Consider a test system that validates database access, but setting up the database is very time consuming.  To automate the test
-process, it makes sense to set up the database within the test system.  However, it also makes sense to skip the database setup
-if the database already exists.  In Undercamber, it is easy to write code to check the presence of the database before declaring
-that the setup step must be run.<p>
+      In Undercamber, such a prerequisite is just an ordinary test.  The only difference is that it
+      must be completed before its dependent test is run.  Because a prerequisite is itself just another
+      test, a prerequisite can have its own prerequisites.<p>
 
-<a href="#top">Return to top</a><p>
+      Undercamber has several types of prerequisites, some of which are implicit in the test structure,
+      and other which are explicitly specified by the test developer.  This makes it easy to construct
+      sophisticated networks of setup functions and prerequisites, and such a network requires very
+      little maintenance as tests are added and removed from the system.<p>
 
-<hr>
+      <h3>Dynamic Prerequisites</h3>
 
-&quot;Undercamber&quot; is a trademark of Rygaard Technologies, LLC<br>
-The airfoil logo is a trademark of Rygaard Technologies, LLC<p>
+      Undercamber supports dynamic prerequisites, that may or may not be run depending on
+      whether the prerequisites are satisfied prior to running Undercamber.<p>
 
-Undercamber&trade; is licensed under this agreement:<p>
+      Consider a test system that validates database access, but setting up the database is very time consuming.  To automate the test
+      process, it makes sense to set up the database within the test system.  However, it also makes sense to skip the database setup
+      if the database already exists.  In Undercamber, it is easy to write code to check the presence of the database before declaring
+      that the setup step must be run.<p>
 
-<div style="border: 2px solid black"><p style="margin: 0; padding: 10px">
-Copyright 2018 Rygaard Technologies, LLC<br>
-<br>
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:<br>
-<br>
-<ol>
-   <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
-   <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
-   <li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
-</ol>
-<br>
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p></div>
+      <a href="#top">Return to top</a><p>
+
+      <h2 id="MultipleVersions">Test multiple versions of the UUT</h2>
+
+      The unique architecture of Undercamber fully supports testing
+      <ul>
+         <li>Multiple versions of the Unit Under Test (UUT), and</li>
+         <lI>Multiple versions of JVMs</li>
+      </ul>
+
+      all within a single test run.<p>
+
+      <a href="#top">Return to top</a><p>
+
+      <center><a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="148" height="38"/></a></center>
+
+      <hr>
+
+      &quot;Undercamber&quot; is a trademark of Rygaard Technologies, LLC<br>
+      The airfoil logo is a trademark of Rygaard Technologies, LLC<p>
+
+      Undercamber&trade; is licensed under the BSD 3-Clause license:<p>
+
+      <div style="border: 2px solid black"><p style="margin: 0; padding: 10px">
+      Copyright 2018 Rygaard Technologies, LLC<br>
+      <br>
+      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:<br>
+      <br>
+      <ol>
+         <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+         <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+         <li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
+      </ol>
+      <br>
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p></div>
+
+   </body>
+</html>
