@@ -37,7 +37,6 @@ final class Finisher
              java.util.List<TestSet> pass1TestSets,
              java.io.File            resultsDirectory,
              int                     headingColumnWidth,
-             ExecutionMode           executionMode,
              TestData                pass1TestMap[],
              String                  elapsedTimeString,
              boolean                 displayResultsWindow,
@@ -60,7 +59,7 @@ final class Finisher
       {
          testSet.getPass1TestData().setupReferencedRequirementsOnBranch( pass1TestMap.length,
                                                                          unsupportiveTestSet );
-         if ( testSet.shouldRun(executionMode.useAlternateRunFlag()) )
+         if ( testSet.shouldRun(true) )
          {
             testResults = testSet.getTestDataFromPersistence();
             testSet.getPass1TestData().transferResultsFrom( testResults );
@@ -93,7 +92,6 @@ final class Finisher
       printTextReport( pass1TestSets,
                        resultsDirectory,
                        headingColumnWidth,
-                       executionMode,
                        elapsedTimeString );
 
       printAnalysis( unsupportiveTests,
@@ -132,7 +130,6 @@ final class Finisher
    final private void printTextReport( java.util.List<TestSet> pass1TestSets,
                                        java.io.File            resultsDirectory,
                                        int                     headingColumnWidth,
-                                       ExecutionMode           executionMode,
                                        String                  elapsedTimeString )
    {
       java.util.List<String>  testSetNames;

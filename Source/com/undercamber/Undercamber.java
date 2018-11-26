@@ -597,7 +597,7 @@ final public class Undercamber
 
             if ( okay )
             {
-               runPass2( ExecutionMode.RUN_SELECTED_ALTERNATE_TESTS );
+               runPass2();
             }
             else
             {
@@ -677,7 +677,7 @@ final public class Undercamber
    {
       _dummyRoot.setAlternateRunFlagOnBranch( tagName );
 
-      runPass2( ExecutionMode.RUN_SELECTED_ALTERNATE_TESTS );
+      runPass2();
    }
 
    final void runAllTests()
@@ -685,12 +685,14 @@ final public class Undercamber
       _dummyRoot.setRunOnBranch( true,
                                  true );
 
-      runPass2( ExecutionMode.RUN_SELECTED_ALTERNATE_TESTS );
+      runPass2();
    }
 
    final void runGUISelectedTests()
    {
-      runPass2( ExecutionMode.RUN_SELECTED_GUI_TESTS );
+      _dummyRoot.transferGUIRunFlags();
+
+      runPass2();
    }
 
    final void runTest( TestData testData,
@@ -707,10 +709,10 @@ final public class Undercamber
                           true );
       }
 
-      runPass2( ExecutionMode.RUN_SELECTED_ALTERNATE_TESTS );
+      runPass2();
    }
 
-   final private void runPass2( ExecutionMode executionMode )
+   final private void runPass2()
    {
       int headingColumnWidth;
 
@@ -734,7 +736,7 @@ final public class Undercamber
             javafx.application.Platform.runLater( () -> _selectionWindow.saveAndClose(null) );
          }
 
-         ( new Thread(()->pass2Thread(headingColumnWidth,executionMode)) ).start();
+         ( new Thread(()->pass2Thread(headingColumnWidth)) ).start();
       }
       catch ( Exception exception )
       {
@@ -743,8 +745,7 @@ final public class Undercamber
       }
    }
 
-   final private void pass2Thread( int           headingColumnWidth,
-                                   ExecutionMode executionMode )
+   final private void pass2Thread( int headingColumnWidth )
    {
       java.io.File                 executiveFile;
       boolean                      skippedResultsScreen;
@@ -772,7 +773,7 @@ final public class Undercamber
 
             for ( TestSet testSet : _pass1TestSets )
             {
-               if ( testSet.shouldRun(executionMode.useAlternateRunFlag()) )
+               if ( testSet.shouldRun(true) )
                {
                   runThisProcess = true;
                }
@@ -793,7 +794,7 @@ final public class Undercamber
                   processArguments.add( TestSet.class.getName() );
                   processArguments.add( executiveFile.getPath() );                                 // 0
                   processArguments.add( getResultsDirectory().getPath() );                         // 1
-                  processArguments.add( Integer.toString(executionMode.ordinal()) );               // 2
+                  processArguments.add( Integer.toString(ExecutionMode.PASS_2_EXECUTION.ordinal()) );               // 2
                   processArguments.add( Integer.toString(headingColumnWidth) );                    // 3
                   processArguments.add( Integer.toString(getThreadCount(configuredIndex)) );       // 4
                   processArguments.addAll( _argumentParser.getTestParameters() );                  // 5...
@@ -840,7 +841,6 @@ final public class Undercamber
                        _pass1TestSets,
                        getResultsDirectory(),
                        headingColumnWidth,
-                       executionMode,
                        _sequenceList.getTestDataMap(),
                        elapsedTimeString,
                        showResultsGUI(),

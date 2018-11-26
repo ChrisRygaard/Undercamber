@@ -369,7 +369,7 @@ final class TestSet
       throws UserError,
              InternalException
    {
-      _executionMode = ExecutionMode.DISCOVERY;
+      _executionMode = ExecutionMode.PASS_1_DISCOVERY;
 
       _rootTestManager = new TestManager( null,
                                           createAndGetTestUnit(),

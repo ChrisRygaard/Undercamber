@@ -1692,6 +1692,28 @@ final public class TestData
       }
    }
 
+   final void transferGUIRunFlags()
+   {
+      setRunOnBranch( false,
+                      true );
+
+      transferGUIRunFlagsOnBranch();
+   }
+
+   final private void transferGUIRunFlagsOnBranch()
+   {
+      if ( _guiRunFlag )
+      {
+         setRun( true,
+                 true );
+      }
+
+      for ( TestData child : _children )
+      {
+         child.transferGUIRunFlagsOnBranch();
+      }
+   }
+
    final void setRunOnBranch( boolean run,
                               boolean useAlternateRunFlag )
    {

@@ -1613,7 +1613,7 @@ final public class TestManager
       }
       else
       {
-         throw new UserError( "Error:  Can add prerequisites only during discovery phase.  Mode = " + _testSet.getExecutionMode() + ", expected mode = " + ExecutionMode.DISCOVERY );
+         throw new UserError( "Error:  Can add prerequisites only during discovery phase.  Mode = " + _testSet.getExecutionMode() + ", expected mode = " + ExecutionMode.PASS_1_DISCOVERY );
       }
    }
 
