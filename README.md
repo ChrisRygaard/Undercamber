@@ -1,4 +1,4 @@
-# Undercamber
+# Undercamber 0.2
 
 This is the Undercamber&trade; test framework for Java.  It is a unique approach to testing, with these features:
    - An automatically generated hierarchical GUI for quickly selecting subsets of tests to be run, and fully automated testing without a GUI,
