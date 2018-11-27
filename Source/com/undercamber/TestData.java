@@ -1692,6 +1692,62 @@ final public class TestData
       }
    }
 
+   final void forcePrerequisitesOnBranch( boolean useAlternateRunFlag )
+   {
+      forcePrerequisites( useAlternateRunFlag );
+
+      for ( TestData child : _children )
+      {
+         child.forcePrerequisitesOnBranch( useAlternateRunFlag );
+      }
+   }
+
+   final void forcePrerequisites( boolean useAlternateRunFlag )
+   {
+      int thisIndex;
+      int index;
+
+      if ( getRun(useAlternateRunFlag) )
+      {
+         for ( TestData preresuisite : _fixedPrerequisites  )
+         {
+            preresuisite.setRun( true,
+                                 useAlternateRunFlag );
+         }
+
+         for ( TestData preresuisite : _unsatisfiedConditionalPrerequisites  )
+         {
+            preresuisite.setRun( true,
+                                 useAlternateRunFlag );
+         }
+
+         for ( TestData preresuisite : _satisfiedConditionalPrerequisites  )
+         {
+            preresuisite.setRun( true,
+                                 useAlternateRunFlag );
+         }
+
+         if ( _parent != null )
+         {
+            if ( _parent._subtestSequencingMode.abortOnError() )
+            {
+               thisIndex = getSiblingIndex();
+               for ( index=0; index<thisIndex; index++ )
+               {
+                  _parent._children.get( index ).setRun( true,
+                                                         useAlternateRunFlag );
+               }
+            }
+         }
+
+         if ( _parent != null )
+         {
+            _parent.setRun( true,
+                            useAlternateRunFlag );
+         }
+      }
+   }
+
    final void transferGUIRunFlags()
    {
       setRunOnBranch( false,

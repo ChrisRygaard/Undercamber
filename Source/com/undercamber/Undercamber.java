@@ -32,15 +32,19 @@ package com.undercamber;
 final public class Undercamber
    extends javafx.application.Application
 {
-   final static String                            DEADLOCK_FILE_NAME             = "UndercamberMain";
-   final static int                               PERSISTENCE_VERSION            = 0;
-   final static String                            PERSISTENCE_BRANCH             = "";
-   final static javafx.scene.input.KeyCombination CONTROL_A_KEYBOARD_COMBINATION = new javafx.scene.input.KeyCodeCombination( javafx.scene.input.KeyCode.A,
-                                                                                                                              javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                                                                                                              javafx.scene.input.KeyCombination.ModifierValue.DOWN,
-                                                                                                                              javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                                                                                                              javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                                                                                                              javafx.scene.input.KeyCombination.ModifierValue.UP );
+   /**
+    * The version
+    */
+   final static public String                            VERSION                        = "0.2";
+   final static        String                            DEADLOCK_FILE_NAME             = "UndercamberMain";
+   final static        int                               PERSISTENCE_VERSION            = 0;
+   final static        String                            PERSISTENCE_BRANCH             = "";
+   final static        javafx.scene.input.KeyCombination CONTROL_A_KEYBOARD_COMBINATION = new javafx.scene.input.KeyCodeCombination( javafx.scene.input.KeyCode.A,
+                                                                                                                                     javafx.scene.input.KeyCombination.ModifierValue.UP,
+                                                                                                                                     javafx.scene.input.KeyCombination.ModifierValue.DOWN,
+                                                                                                                                     javafx.scene.input.KeyCombination.ModifierValue.UP,
+                                                                                                                                     javafx.scene.input.KeyCombination.ModifierValue.UP,
+                                                                                                                                     javafx.scene.input.KeyCombination.ModifierValue.UP );
 
    private javafx.stage.Stage                   _primaryStage;
    private SequenceList                         _sequenceList;
@@ -152,6 +156,17 @@ final public class Undercamber
          Utilities.printStackTrace( throwable );
          shutdown();
       }
+   }
+
+   /**
+    * Get the version
+    *
+    * @return String
+    *         The version
+    */
+   final public String getVersion()
+   {
+      return VERSION;
    }
 
    final private ConfigurationCallback getConfigurationCallback( ArgumentParser argumentParser )
@@ -716,6 +731,11 @@ final public class Undercamber
    {
       int headingColumnWidth;
 
+      if ( _argumentParser.forcePrerequisites() )
+      {
+         _dummyRoot.forcePrerequisitesOnBranch( true );
+      }
+
       javafx.application.Platform.runLater( () -> _primaryStage.hide() );
 
       savePass1Configurations();
@@ -794,10 +814,9 @@ final public class Undercamber
                   processArguments.add( TestSet.class.getName() );
                   processArguments.add( executiveFile.getPath() );                                 // 0
                   processArguments.add( getResultsDirectory().getPath() );                         // 1
-                  processArguments.add( Integer.toString(ExecutionMode.PASS_2_EXECUTION.ordinal()) );               // 2
-                  processArguments.add( Integer.toString(headingColumnWidth) );                    // 3
-                  processArguments.add( Integer.toString(getThreadCount(configuredIndex)) );       // 4
-                  processArguments.addAll( _argumentParser.getTestParameters() );                  // 5...
+                  processArguments.add( Integer.toString(headingColumnWidth) );                    // 2
+                  processArguments.add( Integer.toString(getThreadCount(configuredIndex)) );       // 3
+                  processArguments.addAll( _argumentParser.getTestParameters() );                  // 4...
 
                   processBuilder = new ProcessBuilder( processArguments );
                   processBuilder.inheritIO();

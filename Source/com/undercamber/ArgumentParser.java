@@ -31,6 +31,7 @@ final class ArgumentParser
    private boolean                        _success;
    private State                          _state;
    private boolean                        _runAllTests;
+   private boolean                        _forcePrerequisites;
    private String                         _resultsRootDirectoryName;
    private String                         _resultsSubdirectoryName;
    private String                         _configuratorClassName;
@@ -58,6 +59,7 @@ final class ArgumentParser
       entryPointMethodName = null;
       entryPointArguments = null;
 
+      _forcePrerequisites = false;
       _runAllTests = false;
       _useGUIFlags = false;
       _resultsRootDirectoryName = null;
@@ -315,6 +317,16 @@ final class ArgumentParser
          _useGUIFlags = true;
          return State.BETWEEN_PARAMETERS;
       }
+      else if ( argument.equals("-forcePrerequisites") )
+      {
+         _forcePrerequisites = true;
+         return State.BETWEEN_PARAMETERS;
+      }
+      else if ( argument.equals("-fp") )
+      {
+         _forcePrerequisites = true;
+         return State.BETWEEN_PARAMETERS;
+      }
       else if ( argument.equals("-rootDirectory") )
       {
          return State.PARSING_OUTPUT_DIRECTORY;
@@ -445,6 +457,11 @@ final class ArgumentParser
    final boolean useGUIFlags()
    {
       return _useGUIFlags;
+   }
+
+   final boolean forcePrerequisites()
+   {
+      return _forcePrerequisites;
    }
 
    final java.util.List<TestEntryPoint> getEntryPoints()
@@ -601,24 +618,26 @@ final class ArgumentParser
    final static void showUsage()
    {
       System.out.println( "Usage:  " + Undercamber.class.getName() + " [flag parameter...]..." );
-      System.out.println( "   Flag            Parameters                                Description" );
-      System.out.println( "   ----            ----------                                -----------" );
-      System.out.println( "   -a              (none)                                    run all tests." );
-      System.out.println( "   -tag1           tagNames                                  run tests with specified tags." );
-      System.out.println( "   -tag2           tagNames testSetNames                     run tests with specified tags.  Limit search to specified test sets." );
-      System.out.println( "   -test1          className methodName                      run specified test (no arguments)." );
-      System.out.println( "   -test2          className methodName arguments            run specified test with arguments." );
-      System.out.println( "   -test3          testSets className methodName             run specified test.  Limit search to specified test sets.  No arguments." );
-      System.out.println( "   -test4          testSets className methodName arguments   run specified test with arguments.  Limit search to specified tests." );
-      System.out.println( "   -set            testSetName                               run specified test set." );
-      System.out.println( "   -rootDirectory  rootOutputDirectory                       output root directory name." );
-      System.out.println( "   -subdirectory   outputSubdirectoryName                    output subdirectory name,  Default built from current time and date)." );
-      System.out.println( "   -config         configurationClassName                    configurator class name." );
-      System.out.println( "   -threadCount    threadCount                               concurrent thread count." );
-      System.out.println( "   -p              parameter                                 parameter passed to test processes." );
-      System.out.println( "   -pp             flag parameter                            parameter pair passed to test processes." );
-      System.out.println( "   -g              (none)                                    automatically run tests selected in the GUI (from previous run)." );
-      System.out.println( "   -resultWindow   [true|false]                              display the results window." );
-      System.out.println( "   -help           (none)                                    show this message and continue." );
+      System.out.println( "   Flag                Parameters                                Description" );
+      System.out.println( "   ----                ----------                                -----------" );
+      System.out.println( "   -a                  (none)                                    run all tests." );
+      System.out.println( "   -tag1               tagNames                                  run tests with specified tags." );
+      System.out.println( "   -tag2               tagNames testSetNames                     run tests with specified tags.  Limit search to specified test sets." );
+      System.out.println( "   -test1              className methodName                      run specified test (no arguments)." );
+      System.out.println( "   -test2              className methodName arguments            run specified test with arguments." );
+      System.out.println( "   -test3              testSets className methodName             run specified test.  Limit search to specified test sets.  No arguments." );
+      System.out.println( "   -test4              testSets className methodName arguments   run specified test with arguments.  Limit search to specified tests." );
+      System.out.println( "   -set                testSetName                               run specified test set." );
+      System.out.println( "   -rootDirectory      rootOutputDirectory                       output root directory name." );
+      System.out.println( "   -subdirectory       outputSubdirectoryName                    output subdirectory name,  Default built from current time and date)." );
+      System.out.println( "   -config             configurationClassName                    configurator class name." );
+      System.out.println( "   -threadCount        threadCount                               concurrent thread count." );
+      System.out.println( "   -p                  parameter                                 parameter passed to test processes." );
+      System.out.println( "   -pp                 flag parameter                            parameter pair passed to test processes." );
+      System.out.println( "   -g                  (none)                                    automatically run tests selected in the GUI (from previous run)." );
+      System.out.println( "   -resultWindow       [true|false]                              display the results window." );
+      System.out.println( "   -help               (none)                                    show this message and continue." );
+      System.out.println( "   -forcePrerequisites (none)                                    Run all prerequisites, including previously satsified prerequisites." );
+      System.out.println( "   -fp                 (none)                                    Same as -forcePrerequisites." );
    }
 }

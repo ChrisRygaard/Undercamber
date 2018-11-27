@@ -781,8 +781,8 @@ final class TestSet
 
    final private static void showUsageMessage()
    {
-      //                                                                              0                   1                      2                      3              4            5...
-      System.out.println( "Usage:  " + TestSet.class.getName() + " <executive file name> <results directory> <execution mode index> <heading column width> <thread count> {<parameter>...}" );
+      //                                                                              0                   1                      2              3            4...
+      System.out.println( "Usage:  " + TestSet.class.getName() + " <executive file name> <results directory> <heading column width> <thread count> {<parameter>...}" );
    }
 
    final public static void main( String arguments[] )
@@ -797,7 +797,7 @@ final class TestSet
       TestSet                testSet;
       boolean                cleanup;
 
-      if ( arguments.length < 5 )
+      if ( arguments.length < 4 )
       {
          showUsageMessage();
       }
@@ -809,14 +809,12 @@ final class TestSet
 
             resultsDirectory = new java.io.File( arguments[1] );
 
-            executionMode = ExecutionMode.values()[ Integer.parseInt(arguments[2]) ];
+            headingColumnWidth = Integer.parseInt( arguments[2] );
 
-            headingColumnWidth = Integer.parseInt( arguments[3] );
-
-            threadCount = Integer.parseInt( arguments[4] );
+            threadCount = Integer.parseInt( arguments[3] );
 
             commandLineTestParameters = new java.util.ArrayList<String>();
-            for ( index=5; index<arguments.length; index++ )
+            for ( index=4; index<arguments.length; index++ )
             {
                commandLineTestParameters.add( arguments[index] );
             }
@@ -828,13 +826,13 @@ final class TestSet
             {
                testSet = new TestSet( executiveFile,
                                       resultsDirectory,
-                                      executionMode,
+                                      ExecutionMode.PASS_2_EXECUTION,
                                       headingColumnWidth,
                                       threadCount,
                                       commandLineTestParameters );
 
                testSet.runPass2( headingColumnWidth,
-                                 executionMode );
+                                 ExecutionMode.PASS_2_EXECUTION );
             }
             catch ( Throwable throwable )
             {

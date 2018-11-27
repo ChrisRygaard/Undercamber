@@ -1,0 +1,17 @@
+Undercamber 0.2 Release Notes
+
+Version 0.1
+-----------
+
+(Initial release)
+
+Version 0.2
+-----------
+
+Fixes
+
+(1) Repaired bug in handling of previously satisfied prerequisites when using the -g command-line option.
+
+Updates
+
+(1) Added the -forcePrerequisites and the -fp command-line options.
