@@ -28,9 +28,9 @@ package com.undercamber;
 
 enum ExecutionMode
 {
-   //                isDiscovery, verify useConfigurationTestDataRunFlag checkPrerequisites displayProgress recordStatus canAcceptPrerequisites useAlternateRunFlag
-   PASS_1_DISCOVERY( true,        false, false,                          false,             false,          false,       true,                  false ),
-   PASS_2_EXECUTION( false,       true,  true,                           true,              true,           true,        false,                 true  );
+   //                   isDiscovery, verify useConfigurationTestDataRunFlag checkPrerequisites displayProgress recordStatus canAcceptPrerequisites useAlternateRunFlag
+   PASS_1_DISCOVERY   ( true,        false, false,                          false,             false,          false,       true,                  false ),
+   PASS_2_VERIFICATION( false,       true,  true,                           true,              true,           true,        false,                 true  );
 
    private boolean _isDiscovery;
    private boolean _verify;

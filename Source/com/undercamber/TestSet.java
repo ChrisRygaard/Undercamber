@@ -631,8 +631,7 @@ final class TestSet
       return _pass1TestData.getRun( useAlternateRunFlag );
    }
 
-   final void runPass2( int           headingColumnWidth,
-                        ExecutionMode executionMode )
+   final void runPass2( int headingColumnWidth )
       throws UserError,
              InternalException
    {
@@ -640,7 +639,7 @@ final class TestSet
 
       configurationTestData = readTestData( getTestConfigurationFile() );
 
-      _executionMode = executionMode;
+      _executionMode = ExecutionMode.PASS_2_VERIFICATION;
 
       System.out.println( Utilities.padToRight(_testSetName + " ",
                                                headingColumnWidth+10,
@@ -826,13 +825,12 @@ final class TestSet
             {
                testSet = new TestSet( executiveFile,
                                       resultsDirectory,
-                                      ExecutionMode.PASS_2_EXECUTION,
+                                      ExecutionMode.PASS_2_VERIFICATION,
                                       headingColumnWidth,
                                       threadCount,
                                       commandLineTestParameters );
 
-               testSet.runPass2( headingColumnWidth,
-                                 ExecutionMode.PASS_2_EXECUTION );
+               testSet.runPass2( headingColumnWidth );
             }
             catch ( Throwable throwable )
             {
