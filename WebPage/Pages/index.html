@@ -33,14 +33,14 @@
 
       <h2 id="SubsetSelection">Ad Hoc Subset Selection</h2>
 
-      When working in a customer-driven environment, requirements, goals and priorities can change.  Sometimes rapidly.  A developer might be working on
+      When working in a customer-driven environment, requirements, goals, and priorities can change.  Sometimes rapidly.  A developer might be working on
       one part of the product in the morning, and working on a completely different part of the product that afternoon.<p>
 
       To support such development, the programmer needs to quickly select a subset of the full regression test suite to perform tests that are relevant
       to the work at hand.  For example:
       <ul>
-         <li>When working code to validate user input, the developer does not want to waste time running tests to verify persistence.</li>
-         <li>When working on an interface to third-parte libraries, the developer does not want to waste time running tests to validate user input.</li>
+         <li>When working with code to validate user input, the developer does not want to waste time running tests to verify persistence.</li>
+         <li>When working on an interface to third-party libraries, the developer does not want to waste time running tests to validate user input.</li>
       </ul>
 
       For a test framework to properly support an agile environment, it must be easy for a developer to quickly select an appropriate subset of the tests
@@ -52,7 +52,7 @@
 
       <h2 id="SelfConfiguration">Self-Configuration</h2>
 
-      When adding, updating, or removing features to the end product, the test suite should be updated accordingly.  When a developer updates the test
+      When adding, updating, or removing features in the end product, the test suite should be updated accordingly.  When a developer updates the test
       source code, the test automation framework should automatically configure itself without intervention from the developer.<p>
 
       Undercamber is self-configuring.  It deduces the test structure from the test code, and uses that to drive the GUI.  Consider this test code:
@@ -117,7 +117,7 @@
                }
             }</pre>
 
-      The above test code produces this GUI without any scripting or annotations:
+      With the above test code, Undercamber will automatically produce this GUI without any scripting, configuration, or annotations:
       <center><a href="index.html"><img src="images/SimpleSetup.png" alt="Undercamber Logo"/></a></center>
 
       <h3 id="TestAutomation">Test Automation</h3>
@@ -125,8 +125,9 @@
       In an agile environment, a test engineer needs to automate the tests, without any user intervention and without a GUI.<p>
 
       Although Undercamber can be run with a GUI, it also has a variety of techniques to quickly and easily specify subsets
-      of tests for automated execution.  Once the subset of tests specified, there is very little maintenance in maintaining
-      the list as tests are added, updated and removed from the system.<p>
+      of tests for automated execution.  Once the subset of tests specified, there is very little effort to maintain the list
+      as tests are added, updated and removed from the system.  In most cases it is automatic and there is zero effort to
+      maintain the list.<p>
 
       These subsets of tests (or all of the tests) can be easily invoked from the operating system command-line without
       displaying the GUI.<p>
@@ -151,7 +152,7 @@
 
       <h3 id="TightIntegration">Tight Integration Into the Development Workflow</h3>
 
-      Because Undercamber programmed with ordinary Java, it will naturally integrate well with any IDE or automation tools.<p>
+      Because Undercamber is programmed with ordinary Java, it will naturally integrate well with any IDE or automation tools.<p>
 
       <a href="#top">Return to top</a>
 
@@ -159,19 +160,19 @@
 
       In all but the simplest scenarios, a software test will require some setup prior to execution.<p>
 
-      In Undercamber, such a prerequisite is just an ordinary test.  The only difference is that it
+      In Undercamber, such a prerequisite is just another ordinary test.  The only difference is that it
       must be completed before its dependent test is run.  Because a prerequisite is itself just another
       test, a prerequisite can have its own prerequisites.<p>
 
-      Undercamber has several types of prerequisites, some of which are implicit in the test structure,
-      and other which are explicitly specified by the test developer.  This makes it easy to construct
-      sophisticated networks of setup functions and prerequisites, and such a network requires very
-      little maintenance as tests are added and removed from the system.<p>
+      Undercamber has several types of prerequisites, some of which are implicit in the test structure, and other which are
+      explicitly specified by the test developer.  This makes it easy to construct sophisticated networks of setup functions and
+      prerequisites, and such a network requires very little maintenance as tests are added and removed from the system.  In most
+      cases, it is fully automatic.<p>
 
       <h3>Dynamic Prerequisites</h3>
 
-      Undercamber supports dynamic prerequisites, that may or may not be run depending on
-      whether the prerequisites are satisfied prior to running Undercamber.<p>
+      Undercamber supports dynamic prerequisites, that may or may not be run depending on whether the prerequisites are satisfied
+      prior to running Undercamber.<p>
 
       Consider a test system that validates database access, but setting up the database is very time consuming.  To automate the test
       process, it makes sense to set up the database within the test system.  However, it also makes sense to skip the database setup
