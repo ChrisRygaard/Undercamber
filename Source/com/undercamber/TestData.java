@@ -95,7 +95,7 @@ final public class TestData
       {
          _children.add( testSet.getPass1TestData() );
       }
-      _guiRunFlag = true;
+      _guiRunFlag = false;
       _alternateRunFlag = true;
       _selectionExpanded = true;
       _resultsExpanded = true;
@@ -130,7 +130,7 @@ final public class TestData
       _testState = TestState.UNINITIALIZED;
       _arguments = null;
       _children = new java.util.ArrayList<TestData>();
-      _guiRunFlag = true;
+      _guiRunFlag = false;
       _alternateRunFlag = false;
       _selectionExpanded = true;
       _resultsExpanded = true;
