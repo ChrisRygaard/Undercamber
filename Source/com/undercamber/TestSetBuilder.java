@@ -467,11 +467,11 @@ final public class TestSetBuilder
     * @param flag
     *        The first parameter to append
     *
-    * @param validationLevel
-    *        The validation level to use when expanding the strings.
-    *
     * @param parameter
     *        The second parameter to append
+    *
+    * @param validationLevel
+    *        The validation level to use when expanding the strings.
     *
     * @throws UserError
     *         If the string is not properly formatted for string expansion.
@@ -489,6 +489,56 @@ final public class TestSetBuilder
                                                        validationLevel) );
       _testParameters.add( StringExpander.expandString(parameter,
                                                        validationLevel) );
+   }
+
+   /**
+    * Append multiple entries to the list of test parameters.  <p>
+    *
+    * @param validationLevel
+    *        The validation level to use when expanding the strings.
+    *
+    * @param parameters
+    *        The parameters to append
+    *
+    * @throws UserError
+    *         If a string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the strings.
+    */
+   final public void appendTestParameters( ValidationLevel validationLevel,
+                                           String...       parameters )
+      throws UserError,
+             InternalException
+   {
+      for ( String parameter : parameters )
+      {
+         _testParameters.add( StringExpander.expandString(parameter,
+                                                          validationLevel) );
+      }
+   }
+
+   /**
+    * Append multiple entries to the list of test parameters.  <p>
+    *
+    * @param parameters
+    *        The parameters to append
+    *
+    * @throws UserError
+    *         If a string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the strings.
+    */
+   final public void appendTestParameters( String... parameters )
+      throws UserError,
+             InternalException
+   {
+      for ( String parameter : parameters )
+      {
+         _testParameters.add( StringExpander.expandString(parameter,
+                                                          ValidationLevel.ERROR) );
+      }
    }
 
    /**
@@ -603,6 +653,60 @@ final public class TestSetBuilder
 
       _testParameters.add( 0, StringExpander.expandString(flag,
                                                           validationLevel) );
+   }
+
+   /**
+    * Prepend multiple entries to the list of test parameters.  <p>
+    *
+    * @param validationLevel
+    *        The validation level to use when expanding the strings.
+    *
+    * @param parameters
+    *        The parameters to prepend
+    *
+    * @throws UserError
+    *         If a string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the strings.
+    */
+   final public void prependTestParameters( ValidationLevel validationLevel,
+                                            String...       parameters )
+      throws UserError,
+             InternalException
+   {
+      int index;
+
+      for ( index=(parameters.length-1); index>=0; index-- )
+      {
+         _testParameters.add( 0, StringExpander.expandString(parameters[index],
+                                                             validationLevel) );
+      }
+   }
+
+   /**
+    * Prepend multiple entries to the list of test parameters.  <p>
+    *
+    * @param parameters
+    *        The parameters to prepend
+    *
+    * @throws UserError
+    *         If a string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the strings.
+    */
+   final public void prependTestParameters( String... parameters )
+      throws UserError,
+             InternalException
+   {
+      int index;
+
+      for ( index=(parameters.length-1); index>=0; index-- )
+      {
+         _testParameters.add( 0, StringExpander.expandString(parameters[index],
+                                                             ValidationLevel.ERROR) );
+      }
    }
 
    /**
@@ -737,7 +841,7 @@ final public class TestSetBuilder
     * This method does not use string expansion.
     *
     * @param javaParameters
-    *        The set of parameters to be used for the test set.  The internal list is replace by the provided list, so updates to the list outside of this class will be reflected in the list.
+    *        The set of parameters to be used for the test set.  The internal list is replaced by the provided list, so updates to the list outside of this class will be reflected in the list.
     */
    final public void setJavaParameters( java.util.List<String> javaParameters )
    {
@@ -815,6 +919,56 @@ final public class TestSetBuilder
    {
       _javaParameters.add( StringExpander.expandString(javaParameter,
                                                        validationLevel) );
+   }
+
+   /**
+    * Append multiple Java parameters
+    *
+    * @param javaParameters
+    *        The parameters to add
+    *
+    * @throws UserError
+    *         If the string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the string.
+    */
+   final public void appendJavaParameters( String... javaParameters )
+      throws UserError,
+             InternalException
+   {
+      for ( String javaParameter : javaParameters )
+      {
+         _javaParameters.add( StringExpander.expandString(javaParameter,
+                                                          ValidationLevel.ERROR) );
+      }
+   }
+
+   /**
+    * Apped multiple Java parameters
+    *
+    * @param validationLevel
+    *        The validation level to use when expanding the parameters
+    *
+    * @param javaParameters
+    *        The parameters to append
+    *
+    * @throws UserError
+    *         If the string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the string.
+    */
+   final public void appendJavaParameters( ValidationLevel validationLevel,
+                                           String...       javaParameters )
+      throws UserError,
+             InternalException
+   {
+      for ( String javaParameter : javaParameters )
+      {
+         _javaParameters.add( StringExpander.expandString(javaParameter,
+                                                          validationLevel) );
+      }
    }
 
    /**
@@ -989,6 +1143,85 @@ final public class TestSetBuilder
 
       _javaParameters.add( 0, StringExpander.expandString(flag,
                                                           validationLevel) );
+   }
+
+   /**
+    * Prepend multiple Java parameters
+    *
+    * @param parameters
+    *        The parameters to prepend
+    *
+    * @throws UserError
+    *         If the string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the string.
+    */
+   final public void prependJavaParamters( String... parameters )
+      throws UserError,
+             InternalException
+   {
+      int index;
+
+      for ( index=(parameters.length-1); index>=0; index-- )
+      {
+         _javaParameters.add( 0, StringExpander.expandString(parameters[index],
+                                                             ValidationLevel.ERROR) );
+      }
+   }
+
+   /**
+    * Prepend multiple Java parameters
+    *
+    * @param validationLevel
+    *        The validation level to use when expanding the strings.
+    *
+    * @param parameters
+    *        The parameters to prepend
+    *
+    * @throws UserError
+    *         If the string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the string.
+    */
+   final public void prependJavaParameters( ValidationLevel validationLevel,
+                                            String...       parameters )
+      throws UserError,
+             InternalException
+   {
+      int index;
+
+      for ( index=(parameters.length-1); index>=0; index-- )
+      {
+         _javaParameters.add( 0, StringExpander.expandString(parameters[index],
+                                                             validationLevel) );
+      }
+   }
+
+   /**
+    * Prepend multiple Java parameters
+    *
+    * @param parameters
+    *        The parameters to prepend
+    *
+    * @throws UserError
+    *         If the string is not properly formatted for string expansion.
+    *
+    * @throws InternalException
+    *         If there is an internal problem expanding the string.
+    */
+   final public void prependJavaParameters( String...       parameters )
+      throws UserError,
+             InternalException
+   {
+      int index;
+
+      for ( index=(parameters.length-1); index>=0; index-- )
+      {
+         _javaParameters.add( 0, StringExpander.expandString(parameters[index],
+                                                             ValidationLevel.ERROR) );
+      }
    }
 
    /**
