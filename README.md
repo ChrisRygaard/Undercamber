@@ -21,6 +21,7 @@ The architecture of Undercamber&trade; addresses all of these issues and others 
 To begin using Undercamber&trade;:
 <ol>
    <li>Download the User's Guide, <a href="https://github.com/ChrisRygaard/Undercamber/blob/master/UndercamberUsersGuide.pdf">UndercamberUsersGuide.pdf</a></li>
+   <li>Download the JavaDocs, <a href="https://github.com/ChrisRygaard/Undercamber/blob/master/JavaDocs.zip">JavaDocs.zip</a>, and unzip them into a convenient location</li>
    <li>Download <a href="https://github.com/ChrisRygaard/Undercamber/blob/master/Undercamber.jar">Undercamber.jar</a> (<b>Note:</b> it is not a stand-alone JAR file; see the User's Guide).</li>
    <li>Run the examples in the User's Guide</li>
 </ol>
