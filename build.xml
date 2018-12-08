@@ -96,6 +96,8 @@
              <pathelement location="Source"/>
          </sourcepath>
       </javadoc>
+      <zip destfile="JavaDocs.zip"
+           basedir="Documents/JavaDocs"/>
    </target>
 
    <target name="All"
