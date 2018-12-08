@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
    <head>
       <title>Undercamber Test Framework</title>
@@ -9,7 +9,7 @@
          <tr>
             <td style="width:33%"></td>
             <td style="width:33%"><center><img src="images/Logo0256.png"/></center></td>
-            <td style="width:33%"><div align="right"><a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="148" height="38"/></a></div></td>
+            <td style="width:33%"><div align="right"><a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="105" height="25"/></a></div></td>
          </tr>
       </table>
 
@@ -17,19 +17,43 @@
       <ul>
          <li>An automatically generated hierarchical GUI for quickly selecting an ad-hoc subset of tests to be run, and fully automated testing without a GUI,</li>
          <li>Simple programming via a traditional API to support unique or unusual testing strategies,</li>
-         <li>Powerful and simple support for running a test's prerequisites, including skipping setups that have already been performed prior to execution (such as from a previous run), and</li>
-         <li>Support for testing different versions of the Unit Under Test (UUT) and different versions of JVMs in a single run.</li>
-         <li>Simple and effective concurrency control.</li>
-         <li>Short learning curve</li>
+         <li>Powerful and simple support for running a test's prerequisites, including skipping setups that have already been performed prior to
+             execution (such as from a previous run),</li>
+         <li>Support for testing different versions of the Unit Under Test (UUT) and different versions of JVMs in a single run,</li>
+         <li>Simple and effective concurrency control, and</li>
+         <li>Short learning curve.</li>
       </ul>
 
       Undercamber has a unique self-configuring GUI that the tester can use to quickly select and run an ad-hoc subset of tests:<p>
       <center><img src="images/BasicGUI.png" width="589" height="283"/></center><p>
 
-      <a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="148" height="38"/></a>
+      <a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="105" height="25"/></a>
 
       <h1>Undercamber Features</h1>
       Undercamber addresses several aspects of testing that are unique to an agile environment, including:
+
+      <ul>
+         <li><a href="#SubsetSelection">Ad-Hoc Subset Selection</a></li>
+         <li>
+            <a href="#SelfConfiguringGUI">Self-Configuring GUI</a>
+            <ul>
+               <li><a href="#TestAutomation">Test Automation</a></li>
+            </ul>
+         </li>
+         <li>
+            <a href="#API">API Programming</a>
+            <ul>
+               <li><a href="#TightIntegration">Workflow Integration</a></li>
+            </ul>
+         </li>
+         <li>
+            <a href="#Prerequisites">Setup and Prerequisites</a>
+            <ul>
+               <li><a href="#DynamicPrerequisites">Dynamic Prerequisites</a></li>
+            </ul>
+         </li>
+         <li><a href="#MultipleVersions">Multi-Version testing</a></li>
+      </ul>
 
       <h2 id="SubsetSelection">Ad Hoc Subset Selection</h2>
 
@@ -44,18 +68,20 @@
       </ul>
 
       For a test framework to properly support an agile environment, it must be easy for a developer to quickly select an appropriate subset of the tests
-      to run, and then re-use that subset of tests quickly and painlessly.  Toward this goal, Undercamber presents a GUI with a hierarchical tree of tests as shown above.<p>
+      to run, and then re-use that subset of tests quickly and painlessly.  This must be done quickly, without re-programming the test system, and without
+      intimate knowledge of the test setup.<p>
 
-      The GUI is automatically created, updated, and configured completely automatically.<p>
+      Toward this goal, Undercamber presents a GUI with a hierarchical tree of tests to graphically select a set of tests, as shown in the above figure.
+      The GUI is created, updated, and configured completely automatically.<p>
 
       <a href="#top">Return to top</a>
 
-      <h2 id="SelfConfiguration">Self-Configuration</h2>
+      <h2 id="SelfConfiguringGUI">Self-Configuring GUI</h2>
 
       When adding, updating, or removing features in the end product, the test suite should be updated accordingly.  When a developer updates the test
       source code, the test automation framework should automatically configure itself without intervention from the developer.<p>
 
-      Undercamber is self-configuring.  It deduces the test structure from the test code, and uses that to drive the GUI.  Consider this test code:
+      The Undercamber GUI is self-configuring.  The framework deduces the test structure, and uses that to drive the GUI.  Consider this test code:
       <pre>
             public class MyTests
                implements TestUnit
@@ -125,8 +151,8 @@
       In an agile environment, a test engineer needs to automate the tests, without any user intervention and without a GUI.<p>
 
       Although Undercamber can be run with a GUI, it also has a variety of techniques to quickly and easily specify subsets
-      of tests for automated execution.  Once the subset of tests specified, there is very little effort to maintain the list
-      as tests are added, updated and removed from the system.  In most cases it is automatic and there is zero effort to
+      of tests for automated execution.  Once the subset of tests specified, there is very little or no effort to maintain the
+      list as tests are added, updated and removed from the system.  In most cases it is automatic and there is zero effort to
       maintain the list.<p>
 
       These subsets of tests (or all of the tests) can be easily invoked from the operating system command-line without
@@ -169,7 +195,7 @@
       prerequisites, and such a network requires very little maintenance as tests are added and removed from the system.  In most
       cases, it is fully automatic.<p>
 
-      <h3>Dynamic Prerequisites</h3>
+      <h3 id="DynamicPrerequisites">Dynamic Prerequisites</h3>
 
       Undercamber supports dynamic prerequisites, that may or may not be run depending on whether the prerequisites are satisfied
       prior to running Undercamber.<p>
@@ -181,7 +207,7 @@
 
       <a href="#top">Return to top</a><p>
 
-      <h2 id="MultipleVersions">Test multiple versions of the UUT</h2>
+      <h2 id="MultipleVersions">Test Multiple Versions of the UUT</h2>
 
       The unique architecture of Undercamber fully supports testing
       <ul>
@@ -193,7 +219,7 @@
 
       <a href="#top">Return to top</a><p>
 
-      <center><a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="148" height="38"/></a></center>
+      <center><a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="105" height="25"/></a></center>
 
       <hr>
 
@@ -203,16 +229,16 @@
       Undercamber&trade; is licensed under the BSD 3-Clause license:<p>
 
       <div style="border: 2px solid black"><p style="margin: 0; padding: 10px">
-      Copyright 2018 Rygaard Technologies, LLC<br>
-      <br>
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:<br>
-      <br>
+      Copyright 2018 Rygaard Technologies, LLC<p>
+
+      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:<p>
+
       <ol>
          <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
          <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
          <li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
       </ol>
-      <br>
+
       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p></div>
 
    </body>
