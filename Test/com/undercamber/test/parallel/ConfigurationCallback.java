@@ -40,7 +40,7 @@ public class ConfigurationCallback
 
       testSetBuilder.setTestSetName( "MyTest" );
 
-      testSetBuilder.setClass( com.undercamber.test.parallel.Test.class );
+      testSetBuilder.setClassName( "com.undercamber.test.parallel.Test" );
 
       testSetBuilder.createTestSet();
    }

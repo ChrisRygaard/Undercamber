@@ -51,28 +51,28 @@ final public class ConfigurationCallback
       // Test Set 1
 
       testSetBuilder.setTestSetName( "APITest" );
-      testSetBuilder.setClass( com.undercamber.test.omnibus.apitests.APITests1.class );
+      testSetBuilder.setClassName( "com.undercamber.test.omnibus.apitests.APITests1" );
 
       testSetBuilder.createTestSet();
 
       // Test Set 2
 
       testSetBuilder.setTestSetName( "GUITest" );
-      testSetBuilder.setClass( com.undercamber.test.omnibus.guitests.GUITests1.class );
+      testSetBuilder.setClassName( "com.undercamber.test.omnibus.guitests.GUITests1" );
 
       testSetBuilder.createTestSet();
 
       // Test Set 3
 
       testSetBuilder.setTestSetName( "Prerequisite" );
-      testSetBuilder.setClass( com.undercamber.test.omnibus.prerequisites.PrerequisiteExcerciser1.class );
+      testSetBuilder.setClassName( "com.undercamber.test.omnibus.prerequisites.PrerequisiteExcerciser1" );
 
       testSetBuilder.createTestSet();
 
       // Test Set 4
 
       testSetBuilder.setTestSetName( "Constructor" );
-      testSetBuilder.setClass( com.undercamber.test.omnibus.constructor.Constructor1.class );
+      testSetBuilder.setClassName( "com.undercamber.test.omnibus.constructor.Constructor1" );
 
       testSetBuilder.createTestSet();
    }
