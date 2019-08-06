@@ -42,7 +42,7 @@ public class ConfigurationCallback
 
       testSetBuilder.setTestSetName( "MyTests" );
 
-      testSetBuilder.setClass( MyTests.class );
+      testSetBuilder.setClassName( "com.undercamber.codesamples.intro.MyTests" );
 
       testSetBuilder.createTestSet();
    }
