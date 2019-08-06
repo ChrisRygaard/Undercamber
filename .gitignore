@@ -1,3 +1,6 @@
 *.class
 ~*.docx
 ~*.pptx
+/Documents/JavaDocs
+/Libraries/slickedit_build.e
+/Libraries/slickedit_build.ex
