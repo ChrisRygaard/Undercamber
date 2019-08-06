@@ -1,17 +1,65 @@
 Undercamber 0.2 Release Notes
 
+---------------------------------------------------------------------------------------------------
 Version 0.1
------------
 
 (Initial release)
 
+---------------------------------------------------------------------------------------------------
+
 Version 0.2
------------
 
 Fixes
+-----
 
-(1) Repaired bug in handling of previously satisfied prerequisites when using the -g command-line option.
+(1) Repaired bug in handling of previously satisfied prerequisites when using the -g command-line
+    option.
 
 Updates
+-------
 
 (1) Added the -forcePrerequisites and the -fp command-line options.
+
+---------------------------------------------------------------------------------------------------
+
+Version 0.3
+
+Fixes
+-----
+
+(1) TestSetBuilder.setClassName( String ) has been put back into the API.
+
+(2) build.xml has been updated to properly compile the sample code.
+
+Updates
+-------
+
+(1) The first pass (the discovery pass) runs in a separate process.  This allows the various UUTs
+    to be completely decoupled, which in turn resolves potential execution and run-time conflicts.
+
+(2) The sequence of events in the execution is changed:
+
+    (2a) CompletionCallback.testComplete( TestData ) is called at the end of each test set in the
+         second pass, instead of after all tests are complete.
+
+    (2b) Requirement.testComplete( TestData ) is called at the end of each test set in the second
+         pass, instead of after all tests are complete.
+
+(3) The argument in CompletionCallback.testComplete(...) has changed from a list of TestData
+    objects to a single TestData object.
+
+(4) TestSetBuilder.setClass( Class ) is deprecated because it can cause coupling between the
+    different test sets.
+
+(5) A "Collapse All" button and an "Expand All" button have been added to the selection window and
+    the results window.
+
+(6) Undercamber.getVersion() is now a static method.
+
+Notes
+-----
+
+(1) When Undercamber is first run after upgrading to this release from a previous release, some
+    exceptions will be thrown at startup, and the selections in the initial selection window will
+    be lost, but Undercamber will then proceed to completion normally.  Undercamber will run
+    normally on subsequent runs.
