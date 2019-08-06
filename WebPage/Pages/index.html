@@ -25,7 +25,7 @@
       </ul>
 
       Undercamber has a unique self-configuring GUI that the tester can use to quickly select and run an ad-hoc subset of tests:<p>
-      <center><img src="images/BasicGUI.png" width="589" height="283"/></center><p>
+      <center><img src="images/BasicGUI.png" width="700" height="529"/></center><p>
 
       <a href="https://github.com/ChrisRygaard/Undercamber"><img src="images/Download.png" width="105" height="25"/></a>
 
@@ -52,7 +52,12 @@
                <li><a href="#DynamicPrerequisites">Dynamic Prerequisites</a></li>
             </ul>
          </li>
-         <li><a href="#MultipleVersions">Multi-Version testing</a></li>
+         <li>
+            <a href="#MultipleVersions">Multi-Version testing</a>
+         </li>
+         <li>
+            <a href="#GraphicalResults">Graphical Results</a>
+         </li>
       </ul>
 
       <h2 id="SubsetSelection">Ad Hoc Subset Selection</h2>
@@ -71,8 +76,8 @@
       to run, and then re-use that subset of tests quickly and painlessly.  This must be done quickly, without re-programming the test system, and without
       intimate knowledge of the test setup.<p>
 
-      Toward this goal, Undercamber presents a GUI with a hierarchical tree of tests to graphically select a set of tests, as shown in the above figure.
-      The GUI is created, updated, and configured completely automatically.<p>
+      Toward this goal, Undercamber presents a GUI with a hierarchical tree of tests, allowing the user to graphically select a select a subset of tests,
+      as shown in the above figure.  The GUI is created, updated, and configured completely automatically.<p>
 
       <a href="#top">Return to top</a>
 
@@ -143,8 +148,9 @@
                }
             }</pre>
 
-      With the above test code, Undercamber will automatically produce this GUI without any scripting, configuration, or annotations:
-      <center><a href="index.html"><img src="images/SimpleSetup.png" alt="Undercamber Logo"/></a></center>
+      With the above test code, Undercamber will automatically produce this GUI without any scripting, configuration, or annotations:<p>
+
+      <center><a href="index.html"><img src="images/SimpleSetup.png" width="700" height="356" alt="Undercamber Logo"/></a></center>
 
       <h3 id="TestAutomation">Test Automation</h3>
 
@@ -170,7 +176,7 @@
          <li>Testing in a loop uses ordinary Java looping techniques (such as <tt>for</tt>, <tt>do</tt>, and <tt>while</tt> loops.)</li>
          <li>Optional testing can be implemented using ordinary Java conditional programming (such as <tt>if</tt> blocks)</li>
          <li>Method calls can be made wherever needed</li>
-         <li>Any and all other Java programming techniques are available to the test developer</li>
+         <li>Any and all other Java programming techniques and facilities are available to the test developer</li>
       </ul>
 
       Java developers are already familiar with Java techniques (obviously), so the Undercamber learning curve is quite short.
@@ -216,6 +222,16 @@
       </ul>
 
       all within a single test run.<p>
+
+      <a href="#top">Return to top</a><p>
+
+      <h2 id="GraphicalResults">Graphical Presentation of Results</h2>
+
+      Undercamber can optionally display the test results graphically:<p>
+
+      <center><img src="images/Results.png" width="700" height="421"/></center><p>
+
+      Like the selection GUI shown above, this GUI is self-configuring and needs no programming by the test developer.<p>
 
       <a href="#top">Return to top</a><p>
 
