@@ -66,13 +66,13 @@
            depends="CompileProduct">
       <javac debug="on"
              includeantruntime="false"
-             srcdir="Test"
+             srcdir="Samples"
              deprecation="on">
          <compilerarg value="-Xlint:all"/>
          <compilerarg value="-Werror"/>
          <compilerarg line="-Xmaxerrs 1000"/>
          <classpath>
-            <pathelement location="Samples"/>
+            <pathelement location="Source"/>
          </classpath>
       </javac>
    </target>
@@ -98,7 +98,6 @@
       </javadoc>
       <zip destfile="JavaDocs.zip"
            basedir="Documents/JavaDocs"/>
-      <delete dir="Documents/JavaDocs"/>
    </target>
 
    <target name="All"
