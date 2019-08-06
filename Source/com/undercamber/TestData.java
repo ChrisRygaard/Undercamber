@@ -37,48 +37,49 @@ final public class TestData
    final private static int    CLASS_PERSISTENCE_VERSION = 0;
    final private static String CLASS_PERSISTENCE_BRANCH  = "";
 
-   private TestData                                            _parent;
-   private TestManager                                         _testManager;
-   private StackTraceElement                                   _callingStackTraceElement;
-   private String                                              _arguments;
-   private SubtestSequencingMode                               _subtestSequencingMode;
-   private SubtestContinuationMode                             _subtestContinuationMode;
-   private TestState                                           _testState;
-   private boolean                                             _guiRunFlag;
-   private boolean                                             _alternateRunFlag;
-   private int                                                 _sequenceIndex;
-   private java.util.List<Throwable>                           _exceptions;
-   private java.util.List<TestData>                            _children;
-   private java.util.List<TestDataListener>                    _listeners;
-   private boolean                                             _selectionExpanded;
-   private boolean                                             _resultsExpanded;
-   private java.util.List<Prerequisite>                        _prerequisites;
-   private java.util.Set<TestData>                             _fixedPrerequisites;
-   private java.util.Set<TestData>                             _unsatisfiedConditionalPrerequisites;
-   private java.util.Set<TestData>                             _satisfiedConditionalPrerequisites;
-   private java.util.List<Integer>                             _fixedPrerequisiteIndices;
-   private java.util.List<Integer>                             _unsatisfiedConditionalPrerequisiteIndices;
-   private java.util.List<Integer>                             _satisfiedConditionalPrerequisiteIndices;
-   private java.util.Set<TestData>                             _fixedDependents;
-   private java.util.Set<TestData>                             _unsatisfiedConditionalDependents;
-   private java.util.Set<TestData>                             _satisfiedConditionalDependents;
-   private java.util.List<Integer>                             _fixedDependentIndices;
-   private java.util.List<Integer>                             _unsatisfiedConditionalDependentIndices;
-   private java.util.List<Integer>                             _satisfiedConditionalDependentIndices;
-   private TestSet                                             _testSet;
-   private Tag                                                 _tags[];
-   private java.util.List<Requirement>                         _requirements;
-   private java.util.Set<Requirement>                          _referencedRequirements;
-   private long                                                _startTime;
-   private long                                                _stopTime;
-   private long                                                _cpuStartTime;
-   private long                                                _cpuStopTime;
-   private DependencyWindow                                    _dependencyWindow;
-   private ErrorWindow                                         _errorWindow;
-   private TestDetailsWindow                                   _testDetailsWindow;
-   private RequirementsWindow                                  _requirementsWindow;
-   private RequirementsWindow                                  _requirementsResultsWindow;
-   private MainTableTreeItem                                   _mainTableTreeItem;
+   private TestData                         _parent;
+   private TestManager                      _testManager;
+   private StackTraceElement                _callingStackTraceElement;
+   private String                           _arguments;
+   private SubtestSequencingMode            _subtestSequencingMode;
+   private SubtestContinuationMode          _subtestContinuationMode;
+   private TestState                        _testState;
+   private boolean                          _guiRunFlag;
+   private boolean                          _alternateRunFlag;
+   private int                              _sequenceIndex;
+   private java.util.List<Throwable>        _exceptions;
+   private java.util.List<TestData>         _children;
+   private java.util.List<TestDataListener> _listeners;
+   private boolean                          _selectionExpanded;
+   private boolean                          _resultsExpanded;
+   private java.util.List<Prerequisite>     _prerequisites;
+   private java.util.Set<TestData>          _fixedPrerequisites;
+   private java.util.Set<TestData>          _unsatisfiedConditionalPrerequisites;
+   private java.util.Set<TestData>          _satisfiedConditionalPrerequisites;
+   private java.util.List<Integer>          _fixedPrerequisiteIndices;
+   private java.util.List<Integer>          _unsatisfiedConditionalPrerequisiteIndices;
+   private java.util.List<Integer>          _satisfiedConditionalPrerequisiteIndices;
+   private java.util.Set<TestData>          _fixedDependents;
+   private java.util.Set<TestData>          _unsatisfiedConditionalDependents;
+   private java.util.Set<TestData>          _satisfiedConditionalDependents;
+   private java.util.List<Integer>          _fixedDependentIndices;
+   private java.util.List<Integer>          _unsatisfiedConditionalDependentIndices;
+   private java.util.List<Integer>          _satisfiedConditionalDependentIndices;
+   private TestSet                          _testSet;
+   private Tag                              _tags[];
+   private java.util.List<Requirement>      _requirements;
+   private java.util.List<RequirementData>  _requirementsData;
+   private java.util.List<RequirementData>  _referencedRequirementsData;
+   private long                             _startTime;
+   private long                             _stopTime;
+   private long                             _cpuStartTime;
+   private long                             _cpuStopTime;
+   private DependencyWindow                 _dependencyWindow;
+   private ErrorWindow                      _errorWindow;
+   private TestDetailsWindow                _testDetailsWindow;
+   private RequirementsWindow               _requirementsWindow;
+   private RequirementsWindow               _requirementsResultsWindow;
+   private MainTableTreeItem                _mainTableTreeItem;
 
    TestData( java.util.List<TestSet> testSets )
    {
@@ -87,13 +88,14 @@ final public class TestData
       _exceptions = new java.util.ArrayList<Throwable>();
       _listeners = new java.util.ArrayList<TestDataListener>();
       _requirements = new java.util.ArrayList<Requirement>();
+      _requirementsData = new java.util.ArrayList<RequirementData>();
       _callingStackTraceElement = null;
       _arguments = null;
       _testState = TestState.UNINITIALIZED;
       _children = new java.util.ArrayList<TestData>();
       for ( TestSet testSet : testSets )
       {
-         _children.add( testSet.getPass1TestData() );
+         _children.add( testSet.getTestData() );
       }
       _guiRunFlag = false;
       _alternateRunFlag = true;
@@ -126,6 +128,7 @@ final public class TestData
       _exceptions = new java.util.ArrayList<Throwable>();
       _listeners = new java.util.ArrayList<TestDataListener>();
       _requirements = new java.util.ArrayList<Requirement>();
+      _requirementsData = new java.util.ArrayList<RequirementData>();
       _callingStackTraceElement = null;
       _testState = TestState.UNINITIALIZED;
       _arguments = null;
@@ -172,12 +175,14 @@ final public class TestData
       _testManager = null;
       _testSet = testSet;
       _fixedDependents = new java.util.HashSet<TestData>();
+      _listeners = new java.util.ArrayList<TestDataListener>();
       _unsatisfiedConditionalDependents = new java.util.HashSet<TestData>();
       _satisfiedConditionalDependents = new java.util.HashSet<TestData>();
       _fixedPrerequisites = new java.util.HashSet<TestData>();
       _unsatisfiedConditionalPrerequisites = new java.util.HashSet<TestData>();
       _satisfiedConditionalPrerequisites = new java.util.HashSet<TestData>();
       _requirements = new java.util.ArrayList<Requirement>();
+      _requirementsData = new java.util.ArrayList<RequirementData>();
       _dependencyWindow = null;
 
       arraySize = dataInputStream.readInt();
@@ -346,6 +351,12 @@ final public class TestData
       _cpuStartTime = dataInputStream.readLong();
       _cpuStopTime = dataInputStream.readLong();
 
+      elementCount = dataInputStream.readInt();
+      for ( index=0; index<elementCount; index++ )
+      {
+         _requirementsData.add( new RequirementData(dataInputStream) );
+      }
+
       _children = new java.util.ArrayList<TestData>();
       elementCount = dataInputStream.readInt();
       for ( index=0; index<elementCount; index++ )
@@ -389,6 +400,7 @@ final public class TestData
       for ( Requirement requirement : requirements )
       {
          _requirements.add( requirement );
+         _requirementsData.add( new RequirementData(requirement) );
       }
 
       notifyListeners();
@@ -1353,14 +1365,14 @@ final public class TestData
    final RequirementsWindow getRequirementsWindow( boolean             results,
                                                    javafx.stage.Window ownerWindow )
    {
-      java.util.List<Requirement> sortedRequirements;
+      java.util.List<RequirementData> sortedRequirements;
 
       if ( results )
       {
          if ( _requirementsResultsWindow == null )
          {
-            sortedRequirements = new java.util.ArrayList<Requirement>();
-            sortedRequirements.addAll( _requirements );
+            sortedRequirements = new java.util.ArrayList<RequirementData>();
+            sortedRequirements.addAll( _requirementsData );
             java.util.Collections.sort( sortedRequirements );
             _requirementsResultsWindow = new RequirementsWindow( "Requirements verified by " + getHeading(),
                                                                  true,
@@ -1373,8 +1385,8 @@ final public class TestData
       {
          if ( _requirementsWindow == null )
          {
-            sortedRequirements = new java.util.ArrayList<Requirement>();
-            sortedRequirements.addAll( _requirements );
+            sortedRequirements = new java.util.ArrayList<RequirementData>();
+            sortedRequirements.addAll( _requirementsData );
             java.util.Collections.sort( sortedRequirements );
             _requirementsWindow = new RequirementsWindow( "Requirements verified by " + getHeading(),
                                                           false,
@@ -1934,16 +1946,16 @@ final public class TestData
       }
    }
 
-   final void setExpandOnBranch( boolean selection,
-                                 boolean expanded )
+   final void setExpandedOnBranch( boolean selection,
+                                   boolean expanded )
    {
       setExpanded( selection,
                    expanded );
 
       for ( TestData child : _children )
       {
-         child.setExpandOnBranch( selection,
-                                  expanded );
+         child.setExpandedOnBranch( selection,
+                                    expanded );
       }
    }
 
@@ -1991,14 +2003,11 @@ final public class TestData
    final void reset( boolean selection,
                      boolean useAlternateRunFlag )
    {
-      if ( _testManager != null )
-      {
-         setRun( false,
-                 useAlternateRunFlag );
+      setRun( false,
+              useAlternateRunFlag );
 
-         setExpanded( selection,
-                      false );
-      }
+      setExpanded( selection,
+                   false );
 
       for ( TestData child : _children )
       {
@@ -2087,9 +2096,9 @@ final public class TestData
       return requirements;
    }
 
-   final void addRequirementsToSet( java.util.Set<Requirement> requirementsSet )
+   final void addRequirementsToSet( java.util.Set<RequirementData> requirementsSet )
    {
-      requirementsSet.addAll( _requirements );
+      requirementsSet.addAll( _requirementsData );
 
       for ( TestData child : _children )
       {
@@ -2097,9 +2106,9 @@ final public class TestData
       }
    }
 
-   final boolean hasRequirements()
+   final boolean hasRequirementsData()
    {
-      return _requirements.size() > 0;
+      return _requirementsData.size() > 0;
    }
 
    /**
@@ -2148,12 +2157,12 @@ final public class TestData
    final void setupReferencedRequirementsOnBranch( int                     testCount,
                                                    java.util.Set<TestData> unsupportiveTests )
    {
-      _referencedRequirements = new java.util.HashSet<Requirement>();
+      _referencedRequirementsData = new java.util.ArrayList<RequirementData>();
 
-      addReferencedRequirements( _referencedRequirements,
+      addReferencedRequirements( _referencedRequirementsData,
                                  new boolean[testCount] );
 
-      if ( _referencedRequirements.size() == 0 )
+      if ( _referencedRequirementsData.size() == 0 )
       {
          unsupportiveTests.add( this );
       }
@@ -2165,8 +2174,8 @@ final public class TestData
       }
    }
 
-   final private void addReferencedRequirements( java.util.Set<Requirement> referencedRequirements,
-                                                 boolean                    visitedNodeFlags[] )
+   final private void addReferencedRequirements( java.util.List<RequirementData> referencedRequirementsData,
+                                                 boolean                         visitedNodeFlags[] )
    {
       java.util.List<TestData> siblings;
       int                      siblingCount;
@@ -2179,29 +2188,29 @@ final public class TestData
       }
       visitedNodeFlags[ _sequenceIndex ] = true;
 
-      referencedRequirements.addAll( _requirements );
+      referencedRequirementsData.addAll( _requirementsData );
 
       for ( TestData testData : _fixedDependents )
       {
-         testData.addReferencedRequirements( referencedRequirements,
+         testData.addReferencedRequirements( referencedRequirementsData,
                                              visitedNodeFlags );
       }
 
       for ( TestData testData : _unsatisfiedConditionalDependents )
       {
-         testData.addReferencedRequirements( referencedRequirements,
+         testData.addReferencedRequirements( referencedRequirementsData,
                                              visitedNodeFlags );
       }
 
       for ( TestData testData : _satisfiedConditionalDependents )
       {
-         testData.addReferencedRequirements( referencedRequirements,
+         testData.addReferencedRequirements( referencedRequirementsData,
                                              visitedNodeFlags );
       }
 
       for ( TestData child : _children )
       {
-         child.addReferencedRequirements( referencedRequirements,
+         child.addReferencedRequirements( referencedRequirementsData,
                                           visitedNodeFlags );
       }
 
@@ -2214,7 +2223,7 @@ final public class TestData
             siblingIndex = siblings.indexOf( this );
             for ( index=siblingIndex+1; index<siblingCount; index++ )
             {
-               siblings.get( index ).addReferencedRequirements( referencedRequirements,
+               siblings.get( index ).addReferencedRequirements( referencedRequirementsData,
                                                                 visitedNodeFlags );
             }
          }
@@ -2241,17 +2250,16 @@ final public class TestData
       return _testState;
    }
 
-   final void requirementsCallback( java.util.Set<Requirement> requirementsSet )
+   final void requirementsCallback()
    {
       for ( Requirement requirement : _requirements )
       {
          requirement.testComplete( this );
-         requirementsSet.add( requirement );
       }
 
       for ( TestData child : _children )
       {
-         child.requirementsCallback( requirementsSet );
+         child.requirementsCallback();
       }
    }
 
@@ -2387,16 +2395,18 @@ final public class TestData
       printStream.println( margin + "   </errorsAndMessages>" );
 
       printStream.println( margin + "   <validatedRequirements>");
-      for ( Requirement requirement : _requirements )
+      for ( RequirementData requirementData : _requirementsData )
       {
-         printStream.println( margin + "      <requirementID>" + requirement.getRequirementID() + "</requirementID>" );
+         requirementData.writeXML( printStream,
+                                   margin + "   " );
       }
       printStream.println( margin + "   </validatedRequirements>");
 
       printStream.println( margin + "   <supportedRequirements>" );
-      for ( Requirement requirement : _referencedRequirements )
+      for ( RequirementData requirementData : _referencedRequirementsData )
       {
-         printStream.println( margin + "      <requirementID>" + requirement.getRequirementID() + "</requirementID>" );
+         requirementData.writeXML( printStream,
+                                   margin + "   " );
       }
       printStream.println( margin + "   </supportedRequirements>" );
 
@@ -2605,6 +2615,12 @@ final public class TestData
       dataOutputStream.writeLong( _stopTime );
       dataOutputStream.writeLong( _cpuStartTime );
       dataOutputStream.writeLong( _cpuStopTime );
+
+      dataOutputStream.writeInt( _requirementsData.size() );
+      for ( RequirementData requirementData : _requirementsData )
+      {
+         requirementData.write( dataOutputStream );
+      }
 
       dataOutputStream.writeInt( _children.size() );
       for ( TestData child : _children )

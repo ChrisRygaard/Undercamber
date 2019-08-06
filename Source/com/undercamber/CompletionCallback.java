@@ -29,11 +29,10 @@ package com.undercamber;
 /**
  * Callback to notify listeners of test completion.  <p>
  *
- * Callbacks are notified after all tests are complete, but before any calls to {@link Requirement#testComplete}.<p>
+ * Callbacks submitted to each test set are called after that test set is complete, but before any calls to {@link Requirement#testComplete}.<p>
  *
- * {@link CompletionCallback} objects passed to TestManager during the first pass (the discovery pass)
- * are retained, and these objects are notified of test completion.  {@link CompletionCallback} objects
- * passed during the second pass are ignored.
+ * {@link CompletionCallback} objects passed to TestManager during the first pass (the discovery pass) are ignored.  {@link CompletionCallback} objects passed during the second pass are called when
+ * the test set is compete.
  *
  * @see TestManager#addCompletionCallback
  */
@@ -42,8 +41,8 @@ public interface CompletionCallback
    /**
     * Called after all tests are complete.
     *
-    * @param testDataRoots
-    *    Array of test results, with one test result from each test set.
+    * @param testDataRoot
+    *    Test results for the current test set.
     */
-   void testComplete( java.util.List<TestData> testDataRoots );
+   void testComplete( TestData testDataRoot );
 }

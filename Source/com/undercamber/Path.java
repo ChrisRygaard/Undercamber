@@ -30,10 +30,9 @@ package com.undercamber;
  * A convenience class to build path-like strings in a
  * platform-independent way.  <p>
  *
- * Entries have string expansion enabled, as describe in {@link StringExpander}.<p>
+ * Entries have string expansion enabled, except as otherwise noted, as describe in {@link StringExpander}.<p>
  *
- * By default, entries in this list can optionally have simple
- * validation performed.<br>
+ * By default, entries in this list can optionally have simple validation performed.<br>
  */
 final public class Path
 {
@@ -291,5 +290,133 @@ final public class Path
 
          return stringBuffer.toString();
       }
+   }
+
+   /**
+    * Create a string with a formatted version of this <tt>Path</tt>.  <p>
+    *
+    * This simply calls <code>toFormattedString( "" )</code>.
+    *
+    * @return The formatted string.
+    */
+   final public String toFormattedString()
+   {
+      return toFormattedString( "" );
+   }
+
+   /**
+    * Create a string with a formatted version of this <tt>Path</tt>.
+    *
+    * @param margin
+    *        A string to prepend to the beginning of each line.
+    *
+    * @return The formatted string.
+    */
+   final public String toFormattedString( String margin )
+   {
+      int                   maximumWidth;
+      java.util.Set<String> foundSet;
+      StringBuilder         stringBuilder;
+      boolean               missing;
+      boolean               duplicate;
+
+      maximumWidth = 0;
+
+      for ( String entry : _entries )
+      {
+         if ( entry.length() > maximumWidth )
+         {
+            maximumWidth = entry.length();
+         }
+      }
+
+      foundSet = new java.util.HashSet<String>();
+
+      stringBuilder = new StringBuilder();
+
+      for ( String entry : _entries )
+      {
+         missing = !( (new java.io.File(entry)).exists() );
+
+         duplicate = foundSet.contains( entry );
+
+         foundSet.add( entry );
+
+         stringBuilder.append( margin );
+
+         if ( missing || duplicate )
+         {
+            stringBuilder.append( Utilities.padToRight(entry,maximumWidth) ).append( " (" );
+
+            if ( missing )
+            {
+               stringBuilder.append( "missing" );
+            }
+
+            if ( duplicate && missing )
+            {
+               stringBuilder.append( "," );
+            }
+
+            if ( duplicate )
+            {
+               stringBuilder.append( "duplicate" );
+            }
+
+            stringBuilder.append( ")" );
+         }
+         else
+         {
+            stringBuilder.append( entry );
+         }
+
+         stringBuilder.append( System.lineSeparator() );
+      }
+
+      return stringBuilder.toString();
+   }
+
+   /**
+    * Print a formatted version of this <tt>Path</tt> to the specified <tt>PrintStream</tt>.
+    *
+    * @param printStream
+    *        The <tt>PrintStream</tt> to which this <tt>Path</tt> should be printed.
+    */
+   final public void formattedPrint( java.io.PrintStream printStream )
+   {
+      printStream.print( toFormattedString() );
+   }
+
+   /**
+    * Print a formatted version of this <tt>Path</tt> to the specified <tt>PrintStream</tt>.
+    *
+    * @param printStream
+    *        The <tt>PrintStream</tt> to which this <tt>Path</tt> should be printed.
+    * @param margin
+    *        A string to print at the beginning of each line.
+    */
+   final public void formattedPrint( java.io.PrintStream printStream,
+                                     String              margin )
+   {
+      printStream.print( toFormattedString(margin) );
+   }
+
+   /**
+    * Print a formatted version of this <tt>Path</tt> to <tt>System.out</tt>.
+    */
+   final public void formattedPrint()
+   {
+      System.out.print( toFormattedString() );
+   }
+
+   /**
+    * Print a formatted version of this <tt>Path</tt> to <tt>System.out</tt>.
+    *
+    * @param margin
+    *        A string to print at the beginning of each line.
+    */
+   final public void formattedPrint( String margin )
+   {
+      System.out.print( toFormattedString(margin) );
    }
 }

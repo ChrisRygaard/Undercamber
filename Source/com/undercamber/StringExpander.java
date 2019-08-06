@@ -37,10 +37,10 @@ package com.undercamber;
  *       Assume there is an environment variable named <tt>MY_ENVIRONMENT_VARIABLE</tt>, and its value is <tt>MyString</tt>
  *    </li>
  *    <li>
- *       Assume the string <tt>not${MY_ENVIRONMENT_VARIABLE}AtAll</tt> is passed to the {link #expandString} method
+ *       Assume the string <tt>not${MY_ENVIRONMENT_VARIABLE}AtAll</tt> is passed to the {@link #expandString} method
  *    </li>
  *    <li>
- *       Then the {link #expandParameter} will return the string <tt>notMyStringAtAll</tt>.
+ *       Then the {@link #expandString} will return the string <tt>notMyStringAtAll</tt>.
  *    </li>
  * </ol><br>
  *

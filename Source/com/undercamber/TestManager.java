@@ -32,9 +32,9 @@ package com.undercamber;
  * Each test must implement {@link TestUnit}, and each test is
  * passed a unique TestManager.
  *
- * Each test must call an overload of
- * {@link #initialize(SubtestSequencingMode,String,SubtestContinuationMode,Prerequisite[],Tag[],Requirement...)}
- * exactly once.
+ * Each test must call an overload of {@link #initialize(SubtestSequencingMode,String,SubtestContinuationMode,Prerequisite[],Tag[],Requirement...)} exactly once.  <p>
+ *
+ * The verification should be performed conditionally, based on the <tt>boolean</tt> returned from <tt>initialize</tt>.
  */
 final public class TestManager
 {
@@ -401,19 +401,12 @@ final public class TestManager
     *
     * @param argument
     *        A string used to provide uniqueness.  <br>
-    *        Undercamber does not have a way to discover the arguments of
-    *        the test methods, so different tests whose signature
-    *        differs only in the argument list are
-    *        indistinguishable to Undercamber.  This argument can provide
-    *        uniqueness.<br>
+    *        Undercamber does not have a way to discover the arguments of the test methods, so different tests whose signature differs only in the argument list are indistinguishable to Undercamber. This
+    *        argument can provide uniqueness.<br>
     *        <br>
-    *        Also, different calls to the same test will have
-    *        identical signatures, and this argument can be used to
-    *        provide uniqueness.<br>
+    *        Also, different calls to the same test will have identical signatures, and this argument can be used to provide uniqueness.<br>
     *        <br>
-    *        Not all tests that are indistinguishable to Undercamber need
-    *        to be made unique via this parameter.  This is needed
-    *        only for:
+    *        Not all tests that are indistinguishable to Undercamber need to be made unique via this parameter.  This is needed only for:
     *        <ul>
     *           <li>Uniquely specifying prerequisites</li>
     *           <li>Uniquely specifying tests on the Undercamber
@@ -463,19 +456,12 @@ final public class TestManager
     *
     * @param argument
     *        A string used to provide uniqueness.  <br>
-    *        Undercamber does not have a way to discover the arguments of
-    *        the test methods, so different tests whose signature
-    *        differs only in the argument list are
-    *        indistinguishable to Undercamber.  This argument can provide
-    *        uniqueness.<br>
+    *        Undercamber does not have a way to discover the arguments of the test methods, so different tests whose signature differs only in the argument list are indistinguishable to Undercamber. This
+    *        argument can provide uniqueness.<br>
     *        <br>
-    *        Also, different calls to the same test will have
-    *        identical signatures, and this argument can be used to
-    *        provide uniqueness.<br>
+    *        Also, different calls to the same test will have identical signatures, and this argument can be used to provide uniqueness.<br>
     *        <br>
-    *        Not all tests that are indistinguishable to Undercamber need
-    *        to be made unique via this parameter.  This is needed
-    *        only for:
+    *        Not all tests that are indistinguishable to Undercamber need to be made unique via this parameter.  This is needed only for:
     *        <ul>
     *           <li>Uniquely specifying prerequisites</li>
     *           <li>Uniquely specifying tests on the Undercamber
@@ -872,19 +858,12 @@ final public class TestManager
     *
     * @param argument
     *        A string used to provide uniqueness.  <br>
-    *        Undercamber does not have a way to discover the arguments of
-    *        the test methods, so different tests whose signature
-    *        differs only in the argument list are
-    *        indistinguishable to Undercamber.  This argument can provide
-    *        uniqueness.<br>
+    *        Undercamber does not have a way to discover the arguments of the test methods, so different tests whose signature differs only in the argument list are indistinguishable to Undercamber. This
+    *        argument can provide uniqueness.<br>
     *        <br>
-    *        Also, different calls to the same test will have
-    *        identical signatures, and this argument can be used to
-    *        provide uniqueness.<br>
+    *        Also, different calls to the same test will have identical signatures, and this argument can be used to provide uniqueness.<br>
     *        <br>
-    *        Not all tests that are indistinguishable to Undercamber need
-    *        to be made unique via this parameter.  This is needed
-    *        only for:
+    *        Not all tests that are indistinguishable to Undercamber need to be made unique via this parameter.  This is needed only for:
     *        <ul>
     *           <li>Uniquely specifying prerequisites</li>
     *           <li>Uniquely specifying tests on the Undercamber
@@ -930,24 +909,18 @@ final public class TestManager
     *
     * @param argument
     *        A string used to provide uniqueness.  <br>
-    *        Undercamber does not have a way to discover the arguments of
-    *        the test methods, so different tests whose signature
-    *        differs only in the argument list are
-    *        indistinguishable to Undercamber.  This argument can provide
-    *        uniqueness.<br>
+    *        Undercamber does not have a way to discover the arguments of the test methods, so different tests whose signature differs only in the argument list are indistinguishable to Undercamber. This
+    *        argument can provide uniqueness.<br>
     *        <br>
-    *        Also, different calls to the same test will have
-    *        identical signatures, and this argument can be used to
-    *        provide uniqueness.<br>
+    *        Also, different calls to the same test will have identical signatures, and this argument can be used to provide uniqueness.<br>
     *        <br>
-    *        Not all tests that are indistinguishable to Undercamber need
-    *        to be made unique via this parameter.  This is needed
-    *        only for:
+    *        Not all tests that are indistinguishable to Undercamber need to be made unique via this parameter.  This is needed only for:
     *        <ul>
     *           <li>Uniquely specifying prerequisites</li>
     *           <li>Uniquely specifying tests on the Undercamber
     *           command line</li>
     *        </ul>
+    *
     * @param prerequisites
     *        The prerequisites to this test
     *
@@ -983,50 +956,36 @@ final public class TestManager
    /**
     * Initialize the test manager.  <br>
     * <br>
-    * Each test is given a unique TestManager object, and the test
-    * should call one of the overloaded versions of this method
-    * just once.
+    * Each test is given a unique TestManager object, and the test should call one of the overloaded versions of this method just once.  <p>
+    *
+    * The verification should be performed conditionally, based on the return value from <tt>initialize</tt>.
     *
     * @param subtestSequencingMode
-    *        Indicates how subtests should be sequenced.  Has no
-    *        effect if the test has no subtests
+    *        Indicates how subtests should be sequenced.  Has no Effect if the test has no subtests
     * @param argument
     *        A string used to provide uniqueness.  <br>
-    *        Undercamber does not have a way to discover the arguments of
-    *        the test methods, so different tests whose signature
-    *        differs only in the argument list are
-    *        indistinguishable to Undercamber.  This argument can provide
-    *        uniqueness.<br>
+    *        Undercamber does not have a way to discover the arguments of the test methods, so different tests whose signature differs only in the argument list are indistinguishable to Undercamber. This
+    *        argument can provide uniqueness.<br>
     *        <br>
-    *        Also, different calls to the same test will have
-    *        identical signatures, and this argument can be used to
-    *        provide uniqueness.<br>
+    *        Also, different calls to the same test will have identical signatures, and this argument can be used to provide uniqueness.<br>
     *        <br>
-    *        Not all tests that are indistinguishable to Undercamber need
-    *        to be made unique via this parameter.  This is needed
-    *        only for:
+    *        Not all tests that are indistinguishable to Undercamber need to be made unique via this parameter.  This is needed only for:
     *        <ul>
     *           <li>Uniquely specifying prerequisites</li>
     *           <li>Uniquely specifying tests on the Undercamber
     *           command line</li>
     *        </ul>
     * @param subtestContinuationMode
-    *        Indicates how the subtests should be handled if this
-    *        test fails.
+    *        Indicates how the subtests should be handled if this test fails.
     * @param prerequisites
     *        The prerequisites to this test
     * @param tags
-    *        The tags on this test.  Tags are used to group tests
-    *        so that a group can be specified on the Undercamber command
-    *        line.
+    *        The tags on this test.  Tags are used to group tests so that a group can be specified on the Undercamber command line.
     * @param requirements
-    *        The requirements that this test will either verify or
-    *        help verify.
+    *        The requirements that this test will either verify or help verify.
     *
-    * @return Indicates whether this test should run its validation
-    *         checks. During the first pass (the discovery pass),
-    *         this will be false. During the second pass (the
-    *         validation pass), this will be true.
+    * @return Indicates whether this test should run its validation checks. During the first pass (the discovery pass), this will be false. During the second pass (the validation pass), this will be
+    *         true.
     *         <table summary="return value table">
     *            <tr>
     *               <td>&nbsp;&nbsp;&nbsp;true:</td>
@@ -1952,29 +1911,29 @@ final public class TestManager
       return _testSet.getThreadCount();
    }
 
-   /**
-    * Get the thread count used in the first pass (the discovery
-    * pass).
-    *
-    * @return The capacity of the thread pool during the first
-    *         pass.
-    */
-   final public int getPass1ThreadCount()
-   {
-      return _testSet.getPass1ThreadCount();
-   }
-
-   /**
-    * Get the thread count used in the second pass (the validation
-    * pass).
-    *
-    * @return The capacity of the thread pool during the second
-    *         pass.
-    */
-   final public int getPass2ThreadCount()
-   {
-      return _testSet.getThreadCount();
-   }
+   ///**
+   // * Get the thread count used in the first pass (the discovery
+   // * pass).
+   // *
+   // * @return The capacity of the thread pool during the first
+   // *         pass.
+   // */
+   //final public int getPass1ThreadCount()
+   //{
+   //   return _testSet.getPass1ThreadCount();
+   //}
+   //
+   ///**
+   // * Get the thread count used in the second pass (the validation
+   // * pass).
+   // *
+   // * @return The capacity of the thread pool during the second
+   // *         pass.
+   // */
+   //final public int getPass2ThreadCount()
+   //{
+   //   return _testSet.getThreadCount();
+   //}
 
    /**
     * Get the name of the overall test suite.

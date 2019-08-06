@@ -31,6 +31,7 @@ final class TestSetWindow
    private javafx.stage.Stage _stage;
 
    TestSetWindow( TestSet                testSet,
+                  Undercamber            undercamber,
                   java.util.List<String> commandLineTestParameters,
                   javafx.stage.Window    ownerWindow )
    {
@@ -39,6 +40,7 @@ final class TestSetWindow
       _stage = new javafx.stage.Stage();
 
       scene = new javafx.scene.Scene( makeContentPane(testSet,
+                                                      undercamber,
                                                       commandLineTestParameters) );
 
       _stage.setScene( scene );
@@ -58,6 +60,7 @@ final class TestSetWindow
    }
 
    final private javafx.scene.layout.Pane makeContentPane( TestSet                testSet,
+                                                           Undercamber            undercamber,
                                                            java.util.List<String> commandLineTestParameters )
    {
       javafx.scene.layout.GridPane          gridPane;
@@ -81,6 +84,7 @@ final class TestSetWindow
                                            row1Constraints );
 
       tabPane = makeTabPane( testSet,
+                             undercamber,
                              commandLineTestParameters );
       buttonPane = makeButtonPane();
 
@@ -108,6 +112,7 @@ final class TestSetWindow
    }
 
    final private javafx.scene.control.TabPane makeTabPane( TestSet                testSet,
+                                                           Undercamber            undercamber,
                                                            java.util.List<String> commandLineTestParameters )
    {
       javafx.scene.control.TabPane tabPane;
@@ -116,13 +121,14 @@ final class TestSetWindow
       tabPane = new javafx.scene.control.TabPane();
 
       tab = new javafx.scene.control.Tab( "Details",
-                                          makeDetailsPane(testSet) );
+                                          makeDetailsPane(testSet,
+                                                          undercamber) );
       tab.setClosable( false );
       tabPane.getTabs().add( tab );
 
       tab = new javafx.scene.control.Tab( "Java Parameters",
                                           makeParameterList(new java.util.ArrayList<String>(),
-                                                            testSet.getJavaParameters()) );
+                                                            testSet.getJVMParameters()) );
       tab.setClosable( false );
       tabPane.getTabs().add( tab );
 
@@ -140,7 +146,8 @@ final class TestSetWindow
       return tabPane;
    }
 
-   final private javafx.scene.layout.Pane makeDetailsPane( TestSet testSet )
+   final private javafx.scene.layout.Pane makeDetailsPane( TestSet     testSet,
+                                                           Undercamber undercamber )
    {
       javafx.scene.layout.GridPane               gridPane;
       javafx.scene.layout.ColumnConstraints      column0Constraints;
@@ -222,7 +229,7 @@ final class TestSetWindow
       javafx.scene.layout.GridPane.setMargin( label, new javafx.geometry.Insets(5,5,5,5) );
       gridPane.getChildren().add( label );
 
-      label = new javafx.scene.control.Label( Integer.toString(testSet.getPass2ThreadCount()) );
+      label = new javafx.scene.control.Label( Integer.toString(undercamber.getPass2ThreadCount(testSet.getConfiguredIndex())) );
       javafx.scene.layout.GridPane.setConstraints( label, 1, rowIndex, 1, 1, javafx.geometry.HPos.LEFT, javafx.geometry.VPos.CENTER );
       javafx.scene.layout.GridPane.setMargin( label, new javafx.geometry.Insets(5,5,5,5) );
       gridPane.getChildren().add( label );

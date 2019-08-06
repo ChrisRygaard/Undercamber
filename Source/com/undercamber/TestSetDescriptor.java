@@ -28,42 +28,39 @@ package com.undercamber;
 
 final class TestSetDescriptor
 {
-   private Undercamber                  _undercamber;
    private String                       _className;
    private String                       _testSetName;
    private String                       _testSuiteName;
    private String                       _jvmDirectoryName;
-   private Integer                      _configurationThreadCount;
+   private Integer                      _pass2ThreadCount;
    private java.util.List<String>       _testParameters;
-   private java.util.List<String>       _javaParameters;
+   private java.util.List<String>       _jvmParameters;
    private java.util.Map<String,String> _environmentVariables;
    private TestSet                      _testSet;
 
-   TestSetDescriptor( Undercamber                  undercamber,
-                      Class<? extends TestUnit>    type,
+   TestSetDescriptor( String                       className,
                       String                       testSetName,
                       String                       testSuiteName,
                       String                       jvmDirectoryName,
-                      Integer                      configurationThreadCount,
+                      Integer                      pass2ThreadCount,
                       java.util.List<String>       testParameters,
-                      java.util.List<String>       javaParameters,
+                      java.util.List<String>       jvmParameters,
                       java.util.Map<String,String> environmentVariables )
    {
       _testSet = null;
 
-      _undercamber = undercamber;
       _testSetName = testSetName;
       _testSuiteName = testSuiteName;
 
-      _className = type.getName();
+      _className = className;
 
       _jvmDirectoryName = jvmDirectoryName;
 
-      _configurationThreadCount = configurationThreadCount;
+      _pass2ThreadCount = pass2ThreadCount;
 
       _testParameters = testParameters;
 
-      _javaParameters = javaParameters;
+      _jvmParameters = jvmParameters;
 
       _environmentVariables = environmentVariables;
    }
@@ -122,9 +119,9 @@ final class TestSetDescriptor
       throw new UserError( "Could not find JVM in " + _jvmDirectoryName );
    }
 
-   final Integer getConfigurationThreadCount()
+   final Integer getPass2ThreadCount()
    {
-      return _configurationThreadCount;
+      return _pass2ThreadCount;
    }
 
    final TestSet getTestSet( java.util.List<String>               commandLineParameters,
@@ -133,28 +130,19 @@ final class TestSetDescriptor
                              java.util.concurrent.ExecutorService executorService )
       throws UserError
    {
-      java.util.List<String> testParameters;
-
-      testParameters = new java.util.ArrayList<String>();
-      testParameters.addAll( commandLineParameters );
-      if ( _testParameters != null )
-      {
-         testParameters.addAll( _testParameters );
-      }
-
       if ( _testSet == null )
       {
-         _testSet = new TestSet( _undercamber,
-                                 index,
-                                 _className,
-                                 _testSetName,
-                                 _testSuiteName,
-                                 getJVMCommand(),
-                                 threadCount,
-                                 testParameters,
-                                 _javaParameters,
+         _testSet = new TestSet( executorService,
                                  _environmentVariables,
-                                 executorService );
+                                 getJVMCommand(),
+                                 _jvmParameters,
+                                 _testSuiteName,
+                                 index,
+                                 _testSetName,
+                                 _className,
+                                 threadCount,
+                                 commandLineParameters,
+                                 _testParameters );
       }
 
       return _testSet;

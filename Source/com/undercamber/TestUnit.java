@@ -29,9 +29,9 @@ package com.undercamber;
 /**
  * A functional interface for {@link TestManager#addSubtest}  <p>
  *
- * Each test must call an overload of
- * {@link TestManager#initialize(SubtestSequencingMode,String,SubtestContinuationMode,Prerequisite[],Tag[],Requirement...)}
- * exactly once.
+ * Each test must call an overload of {@link TestManager#initialize(SubtestSequencingMode,String,SubtestContinuationMode,Prerequisite[],Tag[],Requirement...)} exactly once.
+ *
+ * The verification should be performed conditionally, based on the <tt>boolean</tt> returned from <tt>TestManager.initialize</tt>.
  */
 public interface TestUnit
 {
@@ -42,8 +42,7 @@ public interface TestUnit
     *        The test's TestManager
     *
     * @throws Throwable
-    *         If there is a problem with the test.  Undercamber will
-    *         catch and record any exeptions thrown by the test.
+    *         If there is a problem with the test.  Undercamber will catch and record any exeptions thrown by the test.
     */
    void runTest( TestManager testManager )
       throws Throwable;

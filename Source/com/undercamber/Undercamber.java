@@ -35,11 +35,11 @@ final public class Undercamber
    /**
     * The version
     */
-   final static public String                            VERSION                        = "0.2";
-   final static        String                            DEADLOCK_FILE_NAME             = "UndercamberMain";
-   final static        int                               PERSISTENCE_VERSION            = 0;
-   final static        String                            PERSISTENCE_BRANCH             = "";
-   final static        javafx.scene.input.KeyCombination CONTROL_A_KEYBOARD_COMBINATION = new javafx.scene.input.KeyCodeCombination( javafx.scene.input.KeyCode.A,
+   final public static String                            VERSION                        = "0.3";
+   final        static String                            DEADLOCK_FILE_NAME             = "UndercamberMain";
+   final        static int                               PERSISTENCE_VERSION            = 0;
+   final        static String                            PERSISTENCE_BRANCH             = "";
+   final        static javafx.scene.input.KeyCombination CONTROL_A_KEYBOARD_COMBINATION = new javafx.scene.input.KeyCodeCombination( javafx.scene.input.KeyCode.A,
                                                                                                                                      javafx.scene.input.KeyCombination.ModifierValue.UP,
                                                                                                                                      javafx.scene.input.KeyCombination.ModifierValue.DOWN,
                                                                                                                                      javafx.scene.input.KeyCombination.ModifierValue.UP,
@@ -109,15 +109,14 @@ final public class Undercamber
 
       try
       {
-         _configurator = new Configurator( this,
-                                           configurationCallback,
+         _configurator = new Configurator( configurationCallback,
                                            _argumentParser );
 
          configurationCallback.configure( _configurator );
 
          _configurator.close();
 
-         _pass1ThreadCount = getThreadCount( null );
+         _pass1ThreadCount = fetchPass1ThreadCount();
 
          _executorService = java.util.concurrent.Executors.newFixedThreadPool( _pass1ThreadCount );
 
@@ -164,7 +163,7 @@ final public class Undercamber
     * @return String
     *         The version
     */
-   final public String getVersion()
+   final public static String getVersion()
    {
       return VERSION;
    }
@@ -321,7 +320,31 @@ final public class Undercamber
       return _pass1ThreadCount;
    }
 
-   final int getThreadCount( Integer configuredIndex )
+   final private int fetchPass1ThreadCount()
+   {
+      Integer threadCount;
+
+      threadCount = _argumentParser.getThreadCount();
+      if ( threadCount != null )
+      {
+         return threadCount;
+      }
+
+      threadCount = _configurator.getPass1ThreadCount();
+      if ( threadCount != null )
+      {
+         return threadCount;
+      }
+
+      if ( _environmentVariableThreadCount != null )
+      {
+         return _environmentVariableThreadCount;
+      }
+
+      return Runtime.getRuntime().availableProcessors();
+   }
+
+   final int getPass2ThreadCount( Integer configuredIndex )
    {
       Integer threadCount;
 
@@ -333,7 +356,7 @@ final public class Undercamber
 
       if ( configuredIndex != null )
       {
-         threadCount = _testSetDescriptors.get( configuredIndex ).getConfigurationThreadCount();
+         threadCount = _testSetDescriptors.get( configuredIndex ).getPass2ThreadCount();
          if ( threadCount != null )
          {
             return threadCount;
@@ -394,16 +417,42 @@ final public class Undercamber
 
    final private void runPass1()
    {
-      System.out.println( "Discovering test structures..." );
+      String  elapsedTimeString;
+      boolean okay;
 
       _discoveryStartTime = System.currentTimeMillis();
 
+      Runtime.getRuntime().addShutdownHook( new Thread(()->shutdownHook()) );
+
       try
       {
-         for ( TestSet testSet : _pass1TestSets )
+         try
          {
-            testSet.runPass1();
+            for ( TestSet testSet : _pass1TestSets )
+            {
+               runProcess( testSet,
+                           ExecutionMode.PASS_1_DISCOVERY,
+                           100 );
+
+               okay = testSet.readPass1StatusFile();
+
+               if ( okay )
+               {
+                  testSet.readPass1TestData();
+               }
+               else
+               {
+                  shutdown();
+                  return;
+               }
+            }
          }
+         catch ( Throwable throwable )
+         {
+            Utilities.printStackTrace( throwable );
+         }
+
+         finishPass1();
       }
       catch ( Throwable throwable )
       {
@@ -412,63 +461,46 @@ final public class Undercamber
       }
    }
 
-   final void failureCallback( Throwable throwable )
+   final private void finishPass1()
    {
-      Utilities.printStackTrace( throwable );
-      shutdown();
-   }
-
-   final void pass1Callback()
-   {
-      boolean proceed;
       boolean showGUI;
 
-      synchronized ( TestManager.MONITOR_HOLDER )
-      {
-         _pass1CallbackCounter++;
+      showGUI = _argumentParser.showGUI();
 
-         proceed = _pass1CallbackCounter >= _pass1TestSets.size();
+      _dummyRoot = new TestData( _pass1TestSets );
+
+      _sequenceList = new SequenceList();
+
+      _dummyRoot.appendToSequence( _sequenceList );
+
+      try
+      {
+         _sequenceList.initializeDependencies();
+
+         for ( TestSet testSet : _pass1TestSets )
+         {
+            testSet.initializePrerequisites( !showGUI );
+         }
+      }
+      catch ( Throwable throwable )
+      {
+         Utilities.printStackTrace( throwable );
+         shutdown();
+         return;
       }
 
-      if ( proceed )
+      _dummyRoot.setRunOnBranch( false,
+                                 true );
+
+      System.out.println( "Finished discovering test structure for " + (_sequenceList.size()-1) + " tests in " + (System.currentTimeMillis()-_discoveryStartTime) + " ms." );
+
+      if ( showGUI )
       {
-         showGUI = _argumentParser.showGUI();
-
-         _dummyRoot = new TestData( _pass1TestSets );
-
-         _sequenceList = new SequenceList();
-
-         _dummyRoot.appendToSequence( _sequenceList );
-
-         try
-         {
-            _sequenceList.initializeDependencies();
-
-            for ( TestSet testSet : _pass1TestSets )
-            {
-               testSet.initializePrerequisites( !showGUI );
-            }
-         }
-         catch ( Throwable throwable )
-         {
-            Utilities.printStackTrace( throwable );
-            shutdown();
-            return;
-         }
-
-         _dummyRoot.setRunOnBranch( false,
-                                    true );
-
-         System.out.println( "Finished discovering test structure for " + (_sequenceList.size()-1) + " tests in " + (System.currentTimeMillis()-_discoveryStartTime) + " ms." );
-
-         if ( showGUI )
-         {
-            javafx.application.Platform.runLater( () -> selectionWindowThread() );
-         }
-         else
-         {
-            runPass2FromCommandLine();
-         }
+         javafx.application.Platform.runLater( () -> selectionWindowThread() );
+      }
+      else
+      {
+         runPass2FromCommandLine();
       }
    }
 
@@ -537,7 +569,7 @@ final public class Undercamber
                      }
                      else
                      {
-                        entryPoints = testSet.getPass1TestData().findEntryPoints( testEntryPoint );
+                        entryPoints = testSet.getTestData().findEntryPoints( testEntryPoint );
                         for ( TestData entryPoint : entryPoints )
                         {
                            foundEntryPoint = true;
@@ -575,7 +607,7 @@ final public class Undercamber
                         }
                         else
                         {
-                           found = testSet.getPass1TestData().setAlternateRunFlagOnBranch( tagName );
+                           found = testSet.getTestData().setAlternateRunFlagOnBranch( tagName );
                            if ( found )
                            {
                               foundTag = true;
@@ -601,8 +633,8 @@ final public class Undercamber
                }
                else
                {
-                  testSet.getPass1TestData().setRunOnBranch( true,
-                                                             true );
+                  testSet.getTestData().setRunOnBranch( true,
+                                                        true );
                }
             }
 
@@ -767,16 +799,10 @@ final public class Undercamber
 
    final private void pass2Thread( int headingColumnWidth )
    {
-      java.io.File                 executiveFile;
-      boolean                      skippedResultsScreen;
-      Timer                        timer;
-      java.util.List<String>       processArguments;
-      boolean                      runThisProcess;
-      int                          configuredIndex;
-      ProcessBuilder               processBuilder;
-      java.util.Map<String,String> userEnvironmentVariables;
-      java.util.Map<String,String> processEnvironmentVariables;
-      String                       elapsedTimeString;
+      boolean skippedResultsScreen;
+      Timer   timer;
+      boolean runThisProcess;
+      String  elapsedTimeString;
 
       Runtime.getRuntime().addShutdownHook( new Thread(()->shutdownHook()) );
 
@@ -784,8 +810,6 @@ final public class Undercamber
       try
       {
          timer = new Timer();
-
-         processArguments = new java.util.ArrayList<String>();
 
          try
          {
@@ -804,45 +828,9 @@ final public class Undercamber
 
                if ( runThisProcess )
                {
-                  executiveFile = testSet.writeExecutiveFile();
-
-                  configuredIndex = testSet.getConfiguredIndex();
-
-                  processArguments.clear();
-                  processArguments.add( testSet.getJVMCommand() );
-                  processArguments.addAll( testSet.getJavaParameters() );
-                  processArguments.add( TestSet.class.getName() );
-                  processArguments.add( executiveFile.getPath() );                                 // 0
-                  processArguments.add( getResultsDirectory().getPath() );                         // 1
-                  processArguments.add( Integer.toString(headingColumnWidth) );                    // 2
-                  processArguments.add( Integer.toString(getThreadCount(configuredIndex)) );       // 3
-                  processArguments.addAll( _argumentParser.getTestParameters() );                  // 4...
-
-                  processBuilder = new ProcessBuilder( processArguments );
-                  processBuilder.inheritIO();
-
-                  userEnvironmentVariables = testSet.getEnvironmentVariables();
-                  if ( userEnvironmentVariables != null )
-                  {
-                     processEnvironmentVariables = processBuilder.environment();
-                     processEnvironmentVariables.clear();
-                     for ( String name : userEnvironmentVariables.keySet() )
-                     {
-                        processEnvironmentVariables.put( name, userEnvironmentVariables.get(name) );
-                     }
-                  }
-
-                  try
-                  {
-                     _testProcess = processBuilder.start();
-
-                     _testProcess.waitFor( 36524,
-                                           java.util.concurrent.TimeUnit.DAYS );
-                  }
-                  catch ( Throwable throwable )
-                  {
-                     Utilities.printStackTrace( throwable );
-                  }
+                  runProcess( testSet,
+                              ExecutionMode.PASS_2_VERIFICATION,
+                              headingColumnWidth );
                }
             }
          }
@@ -878,6 +866,130 @@ final public class Undercamber
             shutdown();
          }
       }
+   }
+
+   final private void runProcess( TestSet       testSet,
+                                  ExecutionMode executionMode,
+                                  int           headingColumnWidth )
+      throws InternalException,
+             UserError
+   {
+      java.util.Map<String,String> userEnvironmentVariables;
+      java.util.List<String>       processArguments;
+      ProcessBuilder               processBuilder;
+      java.util.Map<String,String> processEnvironmentVariables;
+
+      userEnvironmentVariables = testSet.getEnvironmentVariables();
+
+      processArguments = buildProcessArguments( testSet,
+                                                executionMode,
+                                                userEnvironmentVariables,
+                                                headingColumnWidth );
+
+      processBuilder = new ProcessBuilder( processArguments );
+      processBuilder.inheritIO();
+
+      if ( userEnvironmentVariables != null )
+      {
+         processEnvironmentVariables = processBuilder.environment();
+         processEnvironmentVariables.clear();
+         for ( String name : userEnvironmentVariables.keySet() )
+         {
+            processEnvironmentVariables.put( name, userEnvironmentVariables.get(name) );
+         }
+      }
+
+      try
+      {
+         _testProcess = processBuilder.start();
+
+         _testProcess.waitFor( 36524,
+                               java.util.concurrent.TimeUnit.DAYS );
+      }
+      catch ( Throwable throwable )
+      {
+         Utilities.printStackTrace( throwable );
+      }
+   }
+
+   final private java.util.List<String> buildProcessArguments( TestSet                      testSet,
+                                                               ExecutionMode                executionMode,
+                                                               java.util.Map<String,String> userEnvironmentVariables,
+                                                               int                          headingColumnWidth )
+      throws InternalException,
+             UserError
+   {
+      int                    configuredIndex;
+      java.util.List<String> processArguments;
+      java.util.List<String> jvmParameters;
+      java.util.List<String> commandLineTestParameters;
+
+      configuredIndex = testSet.getConfiguredIndex();
+
+      jvmParameters = testSet.getJVMParameters();
+
+      commandLineTestParameters = _argumentParser.getTestParameters();
+
+      processArguments = new java.util.ArrayList<String>();
+
+      processArguments.add( testSet.getJVMCommand() );
+      processArguments.addAll( jvmParameters );
+      processArguments.add( TestSet.class.getName() );
+
+      if ( userEnvironmentVariables == null )
+      {
+         processArguments.add( "-1" );                                                             //  0
+      }
+      else
+      {
+         processArguments.add( Integer.toString(userEnvironmentVariables.size()) );                //  0
+      }
+
+      processArguments.add( testSet.getJVMCommand() );                                             //  1
+      processArguments.add( Integer.toString(jvmParameters.size()) );                              //  2
+      processArguments.add( Integer.toString(executionMode.ordinal()) );                           //  3
+      processArguments.add( getResultsDirectory().getPath() );                                     //  4
+      processArguments.add( Integer.toString(headingColumnWidth) );                                //  5
+      processArguments.add( _configurator.getSuiteName() );                                        //  6
+      processArguments.add( Integer.toString(configuredIndex) );                                   //  7
+      processArguments.add( testSet.getTestSetName() );                                            //  8
+      processArguments.add( testSet.getTopLevelClassName() );                                      //  9
+      processArguments.add( Integer.toString(commandLineTestParameters.size()) );                  // 10
+
+      switch ( executionMode )
+      {
+         case PASS_1_DISCOVERY:
+         {
+            processArguments.add( Integer.toString(getPass1ThreadCount()) );                       // 11
+            break;
+         }
+         case PASS_2_VERIFICATION:
+         {
+            processArguments.add( Integer.toString(getPass2ThreadCount(configuredIndex)) );        // 11
+            break;
+         }
+         default:
+         {
+            throw new InternalError( "Unrecognized execution mode:  " + executionMode );
+         }
+      }
+
+      if ( userEnvironmentVariables != null )
+      {
+         for ( String name : userEnvironmentVariables.keySet() )
+         {
+            processArguments.add( name );
+            processArguments.add( userEnvironmentVariables.get(name) );
+         }
+      }
+
+      processArguments.addAll( jvmParameters );
+
+      processArguments.addAll( _argumentParser.getTestParameters() );
+
+      processArguments.addAll( testSet.getConfigurationTestParameters() );
+
+      return processArguments;
    }
 
    final private void listTags()
@@ -1026,7 +1138,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>automatically run all tests</td>
+    *              <td>Automatically run all tests</td>
     *           </tr>
     *           <tr>
     *              <td>-tag1</td>
@@ -1034,7 +1146,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>automatically run tests with specified tags</td>
+    *              <td>Automatically run tests with specified tags</td>
     *           </tr>
     *           <tr>
     *              <td>-tag2</td>
@@ -1042,7 +1154,7 @@ final public class Undercamber
     *              <td><i>testSetNames</i></td>
     *              <td></td>
     *              <td></td>
-    *              <td>automatically run tests with specified tag.  Limit search for tags to specified testSets.</td>
+    *              <td>Automatically run tests with specified tag.  Limit search for tags to specified testSets.</td>
     *           </tr>
     *           <tr>
     *              <td>-test1</td>
@@ -1050,7 +1162,7 @@ final public class Undercamber
     *              <td><i>methodName</i></td>
     *              <td></td>
     *              <td></td>
-    *              <td>automatically run specified test and subtests.  No arguments.</td>
+    *              <td>Automatically run specified test and subtests.  No arguments.</td>
     *           </tr>
     *           <tr>
     *              <td>-test2</td>
@@ -1058,7 +1170,7 @@ final public class Undercamber
     *              <td><i>methodName</i></td>
     *              <td><i>arguments</i></td>
     *              <td></td>
-    *              <td>automatically run specified test and subtests, with arguments.</td>
+    *              <td>Automatically run specified test and subtests, with arguments.</td>
     *           </tr>
     *           <tr>
     *              <td>-test3</td>
@@ -1066,7 +1178,7 @@ final public class Undercamber
     *              <td><i>className</i></td>
     *              <td><i>methodName</i></td>
     *              <td></td>
-    *              <td>automatically run specified test and subtests.  Limit search for test to specified testSets.  No arguments.</td>
+    *              <td>Automatically run specified test and subtests.  Limit search for test to specified testSets.  No arguments.</td>
     *           </tr>
     *           <tr>
     *              <td>-test4</td>
@@ -1074,7 +1186,7 @@ final public class Undercamber
     *              <td><i>className</i></td>
     *              <td><i>methodName</i></td>
     *              <td><i>arguments</i></td>
-    *              <td>automatically run specified test and subtests.  Limit search for test to specified testSets.  With arguments.</td>
+    *              <td>Automatically run specified test and subtests.  Limit search for test to specified testSets.  With arguments.</td>
     *           </tr>
     *           <tr>
     *              <td>-rootDirectory</td>
@@ -1082,7 +1194,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>output root directory name</td>
+    *              <td>Output root directory name</td>
     *           </tr>
     *           <tr>
     *              <td>-subdirectory</td>
@@ -1090,7 +1202,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>output subdirectory name,  Default built from current time and date)</td>
+    *              <td>Output subdirectory name,  Default built from current time and date)</td>
     *           </tr>
     *           <tr>
     *              <td>-config</td>
@@ -1098,7 +1210,23 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>name of configuration class</td>
+    *              <td>Name of configuration class</td>
+    *           </tr>
+    *           <tr>
+    *              <td>-forcePrerequisites</td>
+    *              <td></td>
+    *              <td></td>
+    *              <td></td>
+    *              <td></td>
+    *              <td>Force execution of all prerequisites</td>
+    *           </tr>
+    *           <tr>
+    *              <td>-fp</td>
+    *              <td></td>
+    *              <td></td>
+    *              <td></td>
+    *              <td></td>
+    *              <td>Force execution of all prerequisites.  Equivalent to -forcePrerequisites</td>
     *           </tr>
     *           <tr>
     *              <td>-threadCount</td>
@@ -1106,7 +1234,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>concurrent thread count</td>
+    *              <td>Concurrent thread count</td>
     *           </tr>
     *           <tr>
     *              <td>-p</td>
@@ -1114,7 +1242,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>parameter passed to test processes</td>
+    *              <td>Parameter passed to test processes</td>
     *           </tr>
     *           <tr>
     *              <td>-pp</td>
@@ -1122,7 +1250,7 @@ final public class Undercamber
     *              <td><i>parameter2</i></td>
     *              <td></td>
     *              <td></td>
-    *              <td>parameter pair passed to test processes</td>
+    *              <td>Parameter pair passed to test processes</td>
     *           </tr>
     *           <tr>
     *              <td>-g</td>
@@ -1130,7 +1258,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>automatically run tests selected in the GUI (from previous run)</td>
+    *              <td>Automatically run tests selected in the GUI (from previous run)</td>
     *           </tr>
     *           <tr>
     *              <td>-set</td>
@@ -1138,7 +1266,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>automatically run all tests in the specified test set</td>
+    *              <td>Automatically run all tests in the specified test set</td>
     *           </tr>
     *           <tr>
     *              <td>-resultWindow</td>
@@ -1146,7 +1274,7 @@ final public class Undercamber
     *              <td></td>
     *              <td></td>
     *              <td></td>
-    *              <td>show or hide the results screen</td>
+    *              <td>Show or hide the results screen</td>
     *           </tr>
     *        </table>
     */

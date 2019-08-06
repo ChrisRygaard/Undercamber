@@ -35,14 +35,15 @@ final class ResultsTreeCell
    private javafx.stage.Window        _ownerWindow;
    private java.util.List<String>     _commandLineTestParameters;
 
-   ResultsTreeCell( java.util.List<String> commandLineTestParameters,
+   ResultsTreeCell( Undercamber            undercamber,
+                    java.util.List<String> commandLineTestParameters,
                     javafx.stage.Window    ownerWindow )
    {
       _label = new javafx.scene.control.Label();
       _ownerWindow = ownerWindow;
       _commandLineTestParameters = commandLineTestParameters;
 
-      setupPopupMenu();
+      setupPopupMenu( undercamber );
    }
 
    final public void updateItem( MainTableItemWrapper mainTableItemWrapper,
@@ -165,7 +166,7 @@ final class ResultsTreeCell
       }
    }
 
-   final private void setupPopupMenu()
+   final private void setupPopupMenu( Undercamber undercamber )
    {
       javafx.scene.control.ContextMenu popupMenu;
       javafx.scene.control.MenuItem    viewTestSetMenuItem;
@@ -173,14 +174,14 @@ final class ResultsTreeCell
       popupMenu = new javafx.scene.control.ContextMenu();
 
       viewTestSetMenuItem = new javafx.scene.control.MenuItem( "View test set environment" );
-      viewTestSetMenuItem.setOnAction( event -> showTestSetWindow() );
+      viewTestSetMenuItem.setOnAction( event -> showTestSetWindow(undercamber) );
 
       popupMenu.getItems().addAll( viewTestSetMenuItem );
 
       setContextMenu( popupMenu );
    }
 
-   final private void showTestSetWindow()
+   final private void showTestSetWindow( Undercamber undercamber )
    {
       MainTableItemWrapper mainTableItemWrapper;
 
@@ -190,7 +191,8 @@ final class ResultsTreeCell
       {
          if ( !(mainTableItemWrapper.isTestData()) )
          {
-            mainTableItemWrapper.getTestSet().getTestSetWindow( _commandLineTestParameters,
+            mainTableItemWrapper.getTestSet().getTestSetWindow( undercamber,
+                                                                _commandLineTestParameters,
                                                                 _ownerWindow ).show();
          }
       }

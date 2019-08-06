@@ -36,8 +36,7 @@ final class TestSet
    private String                               _testSuiteName;
    private String                               _jvmCommand;
    private int                                  _threadCount;
-   private java.util.List<String>               _testParameters;
-   private java.util.List<String>               _javaParameters;
+   private java.util.List<String>               _jvmParameters;
    private java.util.Map<String,String>         _environmentVariables;
    private ExecutionMode                        _executionMode;
    private WatchdogThread                       _watchdogThread;
@@ -46,51 +45,61 @@ final class TestSet
    private java.util.concurrent.ExecutorService _executorService;
    private TestUnit                             _testUnit;
    private TestManager                          _rootTestManager;
-   private TestData                             _pass1TestData;
+   private TestData                             _testData;
    private java.io.File                         _resultsDirectory;
+   private java.io.File                         _pass1StatusFile;
    private StatusFile                           _statusFile;
-   private Undercamber                          _undercamber;
    private TestSetWindow                        _testSetWindow;
+   private java.util.List<String>               _testParameters;
+   private java.util.List<String>               _configurationTestParameters;
+   private java.util.List<String>               _commandLineTestParameters;
 
-   TestSet( Undercamber                          undercamber,
-            int                                  configuredIndex,
-            String                               testUnitClassName,
-            String                               testSetName,
-            String                               testSuiteName,
-            String                               jvmCommand,
-            int                                  threadCount,
-            java.util.List<String>               testParameters,
-            java.util.List<String>               javaParameters,
+   TestSet( java.util.concurrent.ExecutorService executorService,
             java.util.Map<String,String>         environmentVariables,
-            java.util.concurrent.ExecutorService executorService )
+            String                               jvmCommand,
+            java.util.List<String>               jvmParameters,
+            String                               testSuiteName,
+            int                                  configuredIndex,
+            String                               testSetName,
+            String                               testUnitClassName,
+            int                                  threadCount,
+            java.util.List<String>               commandLineTestParameters,
+            java.util.List<String>               configurationTestParameters )
    {
       if ( testUnitClassName == null )
       {
          throw new NullPointerException( "Internal error:  Class name for test unit cannot be null" );
       }
+
       if ( testSetName == null )
       {
          throw new NullPointerException( "Internal error:  Test name cannot be null" );
       }
-      _undercamber = undercamber;
+
+      _completionCallbacks = new java.util.ArrayList<CompletionCallback>();
+      _executionMode = ExecutionMode.PASS_1_DISCOVERY;
+      _testParameters = new java.util.ArrayList<String>();
+      _jvmParameters = new java.util.ArrayList<String>();
+
       _configuredIndex = configuredIndex;
       _testUnitClassName = testUnitClassName;
       _testSetName = testSetName;
       _testSuiteName = testSuiteName;
       _jvmCommand = jvmCommand;
       _threadCount = threadCount;
-      _completionCallbacks = new java.util.ArrayList<CompletionCallback>();
+      _commandLineTestParameters = commandLineTestParameters;
+      _configurationTestParameters = configurationTestParameters;
+      _executorService = executorService;
 
-      _testParameters = new java.util.ArrayList<String>();
-      if ( testParameters != null )
+      _testParameters.addAll( commandLineTestParameters );
+      if ( configurationTestParameters != null )
       {
-         _testParameters.addAll( testParameters );
+         _testParameters.addAll( configurationTestParameters );
       }
 
-      _javaParameters = new java.util.ArrayList<String>();
-      if ( javaParameters != null )
+      if ( jvmParameters != null )
       {
-         _javaParameters.addAll( javaParameters );
+         _jvmParameters.addAll( jvmParameters );
       }
 
       if ( environmentVariables == null )
@@ -106,176 +115,90 @@ final class TestSet
          }
       }
 
-      _executorService = executorService;
    }
 
-   TestSet( java.io.File           executiveFile,
-            java.io.File           resultsDirectory,
-            ExecutionMode          executionMode,
-            int                    headingColumnWidth,
-            int                    threadCount,
-            java.util.List<String> commandLineTestParameters )
-      throws java.io.IOException
+   private TestSet( java.util.Map<String,String> environmentVariables,
+                    String                       jvmCommand,
+                    java.util.List<String>       jvmParameters,
+                    ExecutionMode                executionMode,
+                    java.io.File                 resultsDirectory,
+                    String                       testSuiteName,
+                    int                          configuredIndex,
+                    String                       testSetName,
+                    String                       testUnitClassName,
+                    int                          threadCount,
+                    int                          headingColumnWidth,
+                    java.util.List<String>       commandLineTestParameters,
+                    java.util.List<String>       configurationTestParameters )
+      throws java.io.IOException,
+             UserError,
+             InternalException
    {
-      int    elementCount;
-      int    index;
-      String name;
-      String value;
+      int      elementCount;
+      int      index;
+      String   name;
+      String   value;
+      TestData configurationTestData;
 
-      _undercamber = null;
       _completionCallbacks = new java.util.ArrayList<CompletionCallback>();
 
+      _environmentVariables = environmentVariables;
+      _jvmCommand = jvmCommand;
+      _jvmParameters = jvmParameters;
+      _executionMode = executionMode;
       _resultsDirectory = resultsDirectory;
+      _testSuiteName = testSuiteName;
+      _configuredIndex = configuredIndex;
+      _testSetName = testSetName;
+      _testUnitClassName = testUnitClassName;
       _threadCount = threadCount;
-      _statusFile = new StatusFile( getLocalResultsDirectory() );
+      _commandLineTestParameters = commandLineTestParameters;
+      _configurationTestParameters = configurationTestParameters;
+      if ( executionMode.verify() )
+      {
+         _statusFile = new StatusFile( getLocalResultsDirectory() );
+      }
       _watchdogThread = new WatchdogThread( resultsDirectory,
                                             _testSetName );
+      _testParameters = new java.util.ArrayList<String>();
+      _testParameters.addAll( commandLineTestParameters );
+      _testParameters.addAll( configurationTestParameters );
 
-      try ( java.io.FileInputStream fileInputStream = new java.io.FileInputStream(executiveFile) )
+      _executorService = java.util.concurrent.Executors.newFixedThreadPool( threadCount );
+
+      switch ( executionMode )
       {
-         try ( java.io.BufferedInputStream bufferedInputStream = new java.io.BufferedInputStream(fileInputStream,262144) )
+         case PASS_1_DISCOVERY:
          {
-            try ( java.io.DataInputStream dataInputStream = new java.io.DataInputStream(bufferedInputStream) )
-            {
-               _configuredIndex = dataInputStream.readInt();
+            _rootTestManager = new TestManager( null,
+                                                createAndGetTestUnit(),
+                                                this,
+                                                null,
+                                                "" );
+            break;
+         }
+         case PASS_2_VERIFICATION:
+         {
+            configurationTestData = readTestData( getTestConfigurationFile() );
 
-               _testUnitClassName = dataInputStream.readUTF();
+            System.out.println( Utilities.padToRight(_testSetName + " ",
+                                                     headingColumnWidth+10,
+                                                     ".................................................................................................") );
 
-               _testSetName = dataInputStream.readUTF();
-
-               _testSuiteName = dataInputStream.readUTF();
-
-               if ( dataInputStream.readBoolean() )
-               {
-                  _jvmCommand = dataInputStream.readUTF();
-               }
-               else
-               {
-                  _jvmCommand = null;
-               }
-
-               _testParameters = new java.util.ArrayList<String>();
-               _testParameters.addAll( commandLineTestParameters );
-               if ( dataInputStream.readBoolean() )
-               {
-                  elementCount = dataInputStream.readInt();
-                  for ( index=0; index<elementCount; index++ )
-                  {
-                     _testParameters.add( dataInputStream.readUTF() );
-                  }
-               }
-
-               if ( dataInputStream.readBoolean() )
-               {
-                  _javaParameters = new java.util.ArrayList<String>();
-                  elementCount = dataInputStream.readInt();
-                  for ( index=0; index<elementCount; index++ )
-                  {
-                     _javaParameters.add( dataInputStream.readUTF() );
-                  }
-               }
-               else
-               {
-                  _javaParameters = null;
-               }
-
-               if ( dataInputStream.readBoolean() )
-               {
-                  _environmentVariables = new java.util.HashMap<String,String>();
-                  elementCount = dataInputStream.readInt();
-                  for ( index=0; index<elementCount; index++ )
-                  {
-                     name = dataInputStream.readUTF();
-                     if ( dataInputStream.readBoolean() )
-                     {
-                        value = dataInputStream.readUTF();
-                     }
-                     else
-                     {
-                        value = null;
-                     }
-                     _environmentVariables.put( name, value );
-                  }
-               }
-               else
-               {
-                  _environmentVariables = null;
-               }
-            }
+            _rootTestManager = new TestManager( null,
+                                                createAndGetTestUnit(),
+                                                this,
+                                                configurationTestData,
+                                                "   " );
+            break;
+         }
+         default:
+         {
+            throw new InternalException( "Unrecognized ExecutionMode:  " + executionMode );
          }
       }
 
-      _executorService = java.util.concurrent.Executors.newFixedThreadPool( _threadCount );
-   }
-
-   final java.io.File writeExecutiveFile()
-      throws java.io.IOException
-   {
-      java.io.File executiveFile;
-      String       value;
-
-      executiveFile = getExecutiveFile();
-
-      try ( java.io.FileOutputStream fileOutputStream = new java.io.FileOutputStream(executiveFile) )
-      {
-         try ( java.io.BufferedOutputStream bufferedOutputStream = new java.io.BufferedOutputStream(fileOutputStream,262144) )
-         {
-            try ( java.io.DataOutputStream dataOutputStream = new java.io.DataOutputStream(bufferedOutputStream) )
-            {
-               dataOutputStream.writeInt( _configuredIndex );
-
-               dataOutputStream.writeUTF( _testUnitClassName );
-
-               dataOutputStream.writeUTF( _testSetName );
-
-               dataOutputStream.writeUTF( _testSuiteName );
-
-               dataOutputStream.writeBoolean( _jvmCommand != null );
-               if ( _jvmCommand != null )
-               {
-                  dataOutputStream.writeUTF( _jvmCommand );
-               }
-
-               dataOutputStream.writeBoolean( _testParameters != null );
-               if ( _testParameters != null )
-               {
-                  dataOutputStream.writeInt( _testParameters.size() );
-                  for ( String testParameter : _testParameters )
-                  {
-                     dataOutputStream.writeUTF( testParameter );
-                  }
-               }
-
-               dataOutputStream.writeBoolean( _javaParameters != null );
-               if ( _javaParameters != null )
-               {
-                  dataOutputStream.writeInt( _javaParameters.size() );
-                  for ( String javaParameter : _javaParameters )
-                  {
-                     dataOutputStream.writeUTF( javaParameter );
-                  }
-               }
-
-               dataOutputStream.writeBoolean( _environmentVariables != null );
-               if ( _environmentVariables != null )
-               {
-                  dataOutputStream.writeInt( _environmentVariables.size() );
-                  for ( String name : _environmentVariables.keySet() )
-                  {
-                     dataOutputStream.writeUTF( name );
-                     value = _environmentVariables.get( name );
-                     dataOutputStream.writeBoolean( value != null );
-                     if ( value != null )
-                     {
-                        dataOutputStream.writeUTF( value );
-                     }
-                  }
-               }
-            }
-         }
-      }
-
-      return executiveFile;
+      _rootTestManager.submitTest( headingColumnWidth + 3 );
    }
 
    final private TestUnit createAndGetTestUnit()
@@ -355,44 +278,6 @@ final class TestSet
       return _threadCount;
    }
 
-   final int getPass1ThreadCount()
-   {
-      return _undercamber.getPass1ThreadCount();
-   }
-
-   final int getPass2ThreadCount()
-   {
-      return _undercamber.getThreadCount( _configuredIndex );
-   }
-
-   final void runPass1()
-      throws UserError,
-             InternalException
-   {
-      _executionMode = ExecutionMode.PASS_1_DISCOVERY;
-
-      _rootTestManager = new TestManager( null,
-                                          createAndGetTestUnit(),
-                                          this,
-                                          null,
-                                          "" );
-
-      _rootTestManager.submitTest( 100 );
-   }
-
-   final private java.io.File getTestConfigurationFile()
-   {
-      java.io.File configurationFile;
-
-      configurationFile = new java.io.File( System.getProperty("user.home") );
-      configurationFile = new java.io.File( configurationFile, ".Undercamber" );
-      configurationFile = new java.io.File( configurationFile, _testSuiteName );
-      configurationFile = new java.io.File( configurationFile, "tests" );
-      configurationFile = new java.io.File( configurationFile, _testSetName+".dat" );
-
-      return configurationFile;
-   }
-
    final String getTestSetName()
    {
       return _testSetName;
@@ -416,6 +301,16 @@ final class TestSet
       testParameters.addAll( _testParameters );
 
       return testParameters;
+   }
+
+   final java.util.List<String> getConfigurationTestParameters()
+   {
+      java.util.List<String> configurationTestParameters;
+
+      configurationTestParameters = new java.util.ArrayList<String>();
+      configurationTestParameters.addAll( _configurationTestParameters );
+
+      return configurationTestParameters;
    }
 
    final boolean containsParameter( String parameter )
@@ -468,22 +363,24 @@ final class TestSet
       }
    }
 
-   final java.util.List<String> getJavaParameters()
+   final java.util.List<String> getJVMParameters()
    {
-      java.util.List<String> javaParameters;
+      java.util.List<String> jvmParameters;
 
-      javaParameters = new java.util.ArrayList<String>();
-      javaParameters.addAll( _javaParameters );
+      jvmParameters = new java.util.ArrayList<String>();
+      jvmParameters.addAll( _jvmParameters );
 
-      return javaParameters;
+      return jvmParameters;
    }
 
-   final TestSetWindow getTestSetWindow( java.util.List<String> commandLineTestParameters,
+   final TestSetWindow getTestSetWindow( Undercamber            undercamber,
+                                         java.util.List<String> commandLineTestParameters,
                                          javafx.stage.Window    ownerWindow )
    {
       if ( _testSetWindow == null )
       {
          _testSetWindow = new TestSetWindow( this,
+                                             undercamber,
                                              commandLineTestParameters,
                                              ownerWindow );
       }
@@ -499,13 +396,13 @@ final class TestSet
 
    final void appendToSequence( SequenceList sequenceList )
    {
-      _pass1TestData.appendToSequence( sequenceList );
+      _testData.appendToSequence( sequenceList );
    }
 
    final void initializePrerequisites( boolean useAlternateRunFlag )
       throws UserError
    {
-      _pass1TestData.initializePrerequisites( useAlternateRunFlag );
+      _testData.initializePrerequisites( useAlternateRunFlag );
    }
 
    final void addCompletionCallback( CompletionCallback completionCallback )
@@ -513,17 +410,11 @@ final class TestSet
       _completionCallbacks.add( completionCallback );
    }
 
-   final void postRunCallback( java.util.List<TestData> testDataRoots )
+   final void callCompletionListeners()
    {
-      java.util.List<TestData> roots;
-
-      roots = new java.util.ArrayList<TestData>();
-
       for ( CompletionCallback completionCallback : _completionCallbacks )
       {
-         roots.clear();
-         roots.addAll( testDataRoots );
-         completionCallback.testComplete( roots );
+         completionCallback.testComplete( _testData );
       }
    }
 
@@ -536,7 +427,7 @@ final class TestSet
       testConfigurationFile.getParentFile().mkdirs();
 
       writeTestData( testConfigurationFile,
-                     _pass1TestData );
+                     _testData );
    }
 
    final java.util.Set<String> getTagNames()
@@ -545,44 +436,28 @@ final class TestSet
 
       tagNames = new java.util.HashSet<String>();
 
-      _pass1TestData.addTagNamesToSet( tagNames );
+      _testData.addTagNamesToSet( tagNames );
 
       return tagNames;
    }
 
-   final private TestData readTestData( java.io.File persistenceFile )
+   final void readPass1TestData()
+      throws java.io.IOException
+   {
+      java.io.File testDataFile;
+
+      testDataFile = getTestConfigurationFile();
+
+      _testData = readTestResults( getTestConfigurationFile() );
+   }
+
+   final TestData readTestData( java.io.File persistenceFile )
    {
       if ( persistenceFile.exists() )
       {
-         try ( java.io.FileInputStream fileInputStream = new java.io.FileInputStream(persistenceFile) )
+         try
          {
-            try ( java.io.BufferedInputStream bufferedInputStream = new java.io.BufferedInputStream(fileInputStream,262144) )
-            {
-               try ( java.io.DataInputStream dataInputStream = new java.io.DataInputStream(bufferedInputStream) )
-               {
-                  if ( dataInputStream.readInt() > Undercamber.PERSISTENCE_VERSION )
-                  {
-                     throw new java.io.IOException( "The database is from a newer version of Undercamber" );
-                  }
-                  if ( !(dataInputStream.readUTF().equals(Undercamber.PERSISTENCE_BRANCH)) )
-                  {
-                     throw new java.io.IOException( "The database is from an unrecognized branch of Undercamber" );
-                  }
-
-                  if ( dataInputStream.readInt() > CLASS_PERSISTENCE_VERSION )
-                  {
-                     throw new java.io.IOException( "The database is from a newer version of Undercamber" );
-                  }
-                  if ( !(dataInputStream.readUTF().equals(CLASS_PERSISTENCE_BRANCH)) )
-                  {
-                     throw new java.io.IOException( "The database is from an unrecognized branch of Undercamber" );
-                  }
-
-                  return new TestData( dataInputStream,
-                                       null,
-                                       this );
-               }
-            }
+            return readTestResults( persistenceFile );
          }
          catch ( Throwable throwable )
          {
@@ -593,6 +468,41 @@ final class TestSet
       else
       {
          return null;
+      }
+   }
+
+   final private TestData readTestResults( java.io.File persistenceFile )
+      throws java.io.IOException
+   {
+      try ( java.io.FileInputStream fileInputStream = new java.io.FileInputStream(persistenceFile) )
+      {
+         try ( java.io.BufferedInputStream bufferedInputStream = new java.io.BufferedInputStream(fileInputStream,262144) )
+         {
+            try ( java.io.DataInputStream dataInputStream = new java.io.DataInputStream(bufferedInputStream) )
+            {
+               if ( dataInputStream.readInt() > Undercamber.PERSISTENCE_VERSION )
+               {
+                  throw new java.io.IOException( "The database is from a newer version of Undercamber" );
+               }
+               if ( !(dataInputStream.readUTF().equals(Undercamber.PERSISTENCE_BRANCH)) )
+               {
+                  throw new java.io.IOException( "The database is from an unrecognized branch of Undercamber" );
+               }
+
+               if ( dataInputStream.readInt() > CLASS_PERSISTENCE_VERSION )
+               {
+                  throw new java.io.IOException( "The database is from a newer version of Undercamber" );
+               }
+               if ( !(dataInputStream.readUTF().equals(CLASS_PERSISTENCE_BRANCH)) )
+               {
+                  throw new java.io.IOException( "The database is from an unrecognized branch of Undercamber" );
+               }
+
+               return new TestData( dataInputStream,
+                                    null,
+                                    this );
+            }
+         }
       }
    }
 
@@ -628,30 +538,7 @@ final class TestSet
 
    final boolean shouldRun( boolean useAlternateRunFlag )
    {
-      return _pass1TestData.getRun( useAlternateRunFlag );
-   }
-
-   final void runPass2( int headingColumnWidth )
-      throws UserError,
-             InternalException
-   {
-      TestData configurationTestData;
-
-      configurationTestData = readTestData( getTestConfigurationFile() );
-
-      _executionMode = ExecutionMode.PASS_2_VERIFICATION;
-
-      System.out.println( Utilities.padToRight(_testSetName + " ",
-                                               headingColumnWidth+10,
-                                               "................................") );
-
-      _rootTestManager = new TestManager( null,
-                                          createAndGetTestUnit(),
-                                          this,
-                                          configurationTestData,
-                                          "   " );
-
-      _rootTestManager.submitTest( headingColumnWidth + 3 );
+      return _testData.getRun( useAlternateRunFlag );
    }
 
    final ExecutionMode getExecutionMode()
@@ -666,45 +553,115 @@ final class TestSet
 
    final void completionCallback()
    {
-      TestData previousRunTestData;
+      boolean      failed;
+      TestData     previousRunTestData;
+      java.io.File testConfigurationFile;
 
-      if ( _executionMode.isDiscovery() )
+      failed = true;
+
+      try
       {
-         _pass1TestData = _rootTestManager.getTestData();
-
-         previousRunTestData = readTestData( getTestConfigurationFile() );
-         if ( previousRunTestData != null )
+         if ( _executionMode.isDiscovery() )
          {
-            _pass1TestData.transferConfigurationFromPreviousRun( previousRunTestData );
+            _testData = _rootTestManager.getTestData();
+
+            testConfigurationFile = getTestConfigurationFile();
+
+            previousRunTestData = readTestData( testConfigurationFile );
+            if ( previousRunTestData != null )
+            {
+               _testData.transferConfigurationFromPreviousRun( previousRunTestData );
+            }
+
+            testConfigurationFile.getParentFile().mkdirs();
+
+            writeTestData( testConfigurationFile,
+                           _testData );
+
+            failed = writePass1StatusFile( true );
+
+            shutdown();
          }
+         else
+         {
+            _testData = _rootTestManager.getTestData();
 
-         savePass1ConfigurationData();
+            _testData.requirementsCallback();
 
-         _undercamber.pass1Callback();
+            writeTestData( getBinaryResultsFile(),
+                           _rootTestManager.getTestData() );
+
+            callCompletionListeners();
+
+            shutdown();
+         }
       }
-      else
+      finally
       {
-         writeTestData( getBinaryResultsFile(),
-                        _rootTestManager.getTestData() );
-
-         shutdown();
+         if ( failed )
+         {
+            shutdown();
+         }
       }
    }
 
    final void failureCallback( Throwable throwable )
    {
-      _undercamber.failureCallback( throwable );
+      writePass1StatusFile( false );
+
+      Utilities.printStackTrace( throwable );
+
+      shutdown();
+   }
+
+   final private boolean writePass1StatusFile( boolean okay )
+   {
+      try
+      {
+         try ( java.io.FileOutputStream fileOutputStream = new java.io.FileOutputStream(getPass1StatusFile()) )
+         {
+            try ( java.io.DataOutputStream dataOutputStream = new java.io.DataOutputStream(fileOutputStream) )
+            {
+               dataOutputStream.writeBoolean( okay );
+               return false;
+            }
+         }
+      }
+      catch ( java.io.IOException ioException )
+      {
+         ioException.printStackTrace();
+         return true;
+      }
+   }
+
+   final boolean readPass1StatusFile()
+   {
+      try
+      {
+         try ( java.io.FileInputStream fileInputStream = new java.io.FileInputStream(getPass1StatusFile()) )
+         {
+            try ( java.io.DataInputStream dataInputStream = new java.io.DataInputStream(fileInputStream) )
+            {
+               return dataInputStream.readBoolean();
+            }
+         }
+      }
+      catch ( java.io.IOException ioException )
+      {
+         ioException.printStackTrace();
+         return false;
+      }
    }
 
    final int computeHeadingColumnWidth( int maximumHeadingColumnWidth )
    {
-      return _pass1TestData.getHeadingColumnWidth( maximumHeadingColumnWidth,
-                                                   "" );
+      return _testData.getHeadingColumnWidth( maximumHeadingColumnWidth,
+                                              "" );
    }
 
-   final TestData getPass1TestData()
+   final TestData getTestData()
    {
-      return _pass1TestData;
+      return _testData;
    }
 
    final TestData getTestDataFromPersistence()
@@ -712,16 +669,29 @@ final class TestSet
       return readTestData( getBinaryResultsFile() );
    }
 
-   final private java.io.File getExecutiveFile()
+   final java.io.File getTestConfigurationFile()
    {
-      java.io.File executiveFile;
+      java.io.File configurationFile;
 
-      executiveFile = new java.io.File( getLocalResultsDirectory(), "UndercamberWorkingDirectory" );
-      executiveFile = new java.io.File( executiveFile, "executive" );
-      executiveFile.mkdirs();
-      executiveFile = new java.io.File( executiveFile, _testSetName+".dat" );
+      configurationFile = new java.io.File( System.getProperty("user.home") );
+      configurationFile = new java.io.File( configurationFile, ".Undercamber" );
+      configurationFile = new java.io.File( configurationFile, _testSuiteName );
+      configurationFile = new java.io.File( configurationFile, "tests" );
+      configurationFile = new java.io.File( configurationFile, _testSetName+".dat" );
 
-      return executiveFile;
+      return configurationFile;
+   }
+
+   final java.io.File getPass1StatusFile()
+   {
+      java.io.File pass1StatusFile;
+
+      pass1StatusFile = new java.io.File( getLocalResultsDirectory(), "UndercamberWorkingDirectory" );
+      pass1StatusFile = new java.io.File( pass1StatusFile, "executive" );
+      pass1StatusFile.mkdirs();
+      pass1StatusFile = new java.io.File( pass1StatusFile, _testSetName+".status" );
+
+      return pass1StatusFile;
    }
 
    final private java.io.File getBinaryResultsFile()
@@ -755,11 +725,11 @@ final class TestSet
    {
       printStream.println( margin + "<testSet>" );
       printStream.println( margin + "   <name>" + _testSetName + "</name>" );
-      printStream.println( margin + "   <pass2ThreadCount>" + undercamber.getThreadCount(_configuredIndex) + "</pass2ThreadCount>" );
+      printStream.println( margin + "   <pass2ThreadCount>" + undercamber.getPass2ThreadCount(_configuredIndex) + "</pass2ThreadCount>" );
       printStream.println( margin + "   <jvmCommand>" + _jvmCommand + "</jvmCommand>" );
 
       printStream.println( margin + "   <javaParameters>" );
-      for ( String javaParameter : _javaParameters )
+      for ( String javaParameter : _jvmParameters )
       {
          printStream.println( margin + "      <parameter value=\"" + javaParameter + "\"/>" );
       }
@@ -772,31 +742,56 @@ final class TestSet
       }
       printStream.println( margin + "   </testParameters>" );
 
-      _pass1TestData.writeXMLReport( margin + "   ",
-                                     printStream );
+      _testData.writeXMLReport( margin + "   ",
+                                printStream );
 
       printStream.println( margin + "</testSet>" );
    }
 
    final private static void showUsageMessage()
    {
-      //                                                                              0                   1                      2              3            4...
-      System.out.println( "Usage:  " + TestSet.class.getName() + " <executive file name> <results directory> <heading column width> <thread count> {<parameter>...}" );
+      System.out.println(   "Arguments:  ( 0) <environment variable count>" );
+      System.out.println(   "            ( 1) <JVM command>" );
+      System.out.println(   "            ( 2) <JVM parameter count>" );
+      System.out.println(   "            ( 3) <execution mode>" );
+      System.out.println(   "            ( 4) <results directory>" );
+      System.out.println(   "            ( 5) <heading column width>" );
+      System.out.println(   "            ( 6) <test suite name>" );
+      System.out.println(   "            ( 7) <configured index>" );
+      System.out.println(   "            ( 8) <test set name>" );
+      System.out.println(   "            ( 9) <test unit class name>" );
+      System.out.println(   "            (10) <command line test parameter count>" );
+      System.out.println(   "            (11) <thread count>" );
+      System.out.println(   "                 {<environment variable name, environment variable value>...}" );
+      System.out.println(   "                 {<JVM parameters>...}" );
+      System.out.println(   "                 {<command line test parameter>...}" );
+      System.out.println(   "                 {<configuration test parameter>...}" );
    }
 
    final public static void main( String arguments[] )
    {
-      java.io.File           executiveFile;
-      java.io.File           resultsDirectory;
-      ExecutionMode          executionMode;
-      int                    headingColumnWidth;
-      int                    threadCount;
-      java.util.List<String> commandLineTestParameters;
-      int                    index;
-      TestSet                testSet;
-      boolean                cleanup;
+      int                          environmentVariableCount;
+      java.util.Map<String,String> environmentVariables;
+      String                       jvmCommand;
+      int                          jvmParameterCount;
+      ExecutionMode                executionMode;
+      java.io.File                 resultsDirectory;
+      int                          headingColumnWidth;
+      String                       testSuiteName;
+      int                          configuredIndex;
+      String                       testSetName;
+      String                       testUnitClassName;
+      int                          commandLineTestParameterCount;
+      int                          threadCount;
+      int                          argumentIndex;
+      int                          index;
+      java.util.List<String>       jvmParameters;
+      java.util.List<String>       commandLineTestParameters;
+      java.util.List<String>       configurationTestParameters;
+      TestSet                      testSet;
+      boolean                      cleanup;
 
-      if ( arguments.length < 4 )
+      if ( arguments.length < 11 )
       {
          showUsageMessage();
       }
@@ -804,18 +799,68 @@ final class TestSet
       {
          try
          {
-            executiveFile = new java.io.File( arguments[0] );
+            environmentVariableCount = Integer.parseInt( arguments[0] );
 
-            resultsDirectory = new java.io.File( arguments[1] );
+            if ( environmentVariableCount == -1 )
+            {
+               environmentVariables = null;
+            }
+            else
+            {
+               environmentVariables = new java.util.HashMap<String,String>();
+            }
 
-            headingColumnWidth = Integer.parseInt( arguments[2] );
+            jvmCommand = arguments[ 1 ];
 
-            threadCount = Integer.parseInt( arguments[3] );
+            jvmParameterCount = Integer.parseInt( arguments[2] );
+
+            executionMode = ExecutionMode.values()[ Integer.parseInt(arguments[3]) ];
+
+            resultsDirectory = new java.io.File( arguments[4] );
+
+            headingColumnWidth = Integer.parseInt( arguments[5] );
+
+            testSuiteName = arguments[ 6 ];
+
+            configuredIndex = Integer.parseInt( arguments[7] );
+
+            testSetName = arguments[ 8 ];
+
+            testUnitClassName = arguments[ 9 ];
+
+            commandLineTestParameterCount = Integer.parseInt( arguments[10] );
+
+            threadCount = Integer.parseInt( arguments[11] );
+
+            argumentIndex = 11;
+
+            if ( environmentVariables != null )
+            {
+               for ( index=0; index<environmentVariableCount; index++ )
+               {
+                  environmentVariables.put( arguments[argumentIndex], arguments[argumentIndex+1] );
+                  argumentIndex += 2;
+               }
+            }
+
+            jvmParameters = new java.util.ArrayList<String>();
+            for ( index=0; index<jvmParameterCount; index++ )
+            {
+               jvmParameters.add( arguments[argumentIndex] );
+               argumentIndex++;
+            }
 
             commandLineTestParameters = new java.util.ArrayList<String>();
-            for ( index=4; index<arguments.length; index++ )
+            for ( index=0; index<commandLineTestParameterCount; index++ )
             {
-               commandLineTestParameters.add( arguments[index] );
+               commandLineTestParameters.add( arguments[argumentIndex] );
+               argumentIndex++;
+            }
+
+            configurationTestParameters = new java.util.ArrayList<String>();
+            for ( index=argumentIndex; index<arguments.length; index++ )
+            {
+               configurationTestParameters.add( arguments[index] );
             }
 
             testSet = null;
@@ -823,14 +868,19 @@ final class TestSet
 
             try
             {
-               testSet = new TestSet( executiveFile,
+               testSet = new TestSet( environmentVariables,
+                                      jvmCommand,
+                                      jvmParameters,
+                                      executionMode,
                                       resultsDirectory,
-                                      ExecutionMode.PASS_2_VERIFICATION,
-                                      headingColumnWidth,
+                                      testSuiteName,
+                                      configuredIndex,
+                                      testSetName,
+                                      testUnitClassName,
                                       threadCount,
-                                      commandLineTestParameters );
-
-               testSet.runPass2( headingColumnWidth );
+                                      headingColumnWidth,
+                                      commandLineTestParameters,
+                                      configurationTestParameters );
             }
             catch ( Throwable throwable )
             {

@@ -32,7 +32,20 @@ package com.undercamber;
 public interface ConfigurationCallback
 {
    /**
-    * Used to configure the Undercamber system.
+    * Used to configure the Undercamber system.  <p>
+    *
+    * Each test suite must have one class that instantes this interface.
+    * <ul>
+    *    <li>
+    *       The implementing class must have a valid no-argument constructor.
+    *    </li>
+    *    <li>
+    *       The implementing class must be specified on the Undercamber command line.
+    *    </li>
+    * </ul>
+    *
+    * @see Configurator#getEmptyTestSetBuilder
+    * @see TestSetBuilder#createTestSet
     *
     * @param configurator
     *        The configurator

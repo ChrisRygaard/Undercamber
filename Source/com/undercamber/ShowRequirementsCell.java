@@ -66,7 +66,7 @@ final class ShowRequirementsCell
          {
             if ( mainTableItemWrapper.isTestData() )
             {
-               if ( mainTableItemWrapper.getTestData().hasRequirements() )
+               if ( mainTableItemWrapper.getTestData().hasRequirementsData() )
                {
                   setGraphic( _button );
                }

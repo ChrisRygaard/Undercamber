@@ -54,10 +54,10 @@ final class SelectionWindow
                     java.util.List<String>  commandLineTestParameters,
                     Undercamber             undercamber )
    {
-      javafx.scene.layout.GridPane contentPane;
-      javafx.scene.Scene           scene;
-      java.util.Set<Requirement>   requirementsSet;
-      java.util.List<Requirement>  requirements;
+      javafx.scene.layout.GridPane    contentPane;
+      javafx.scene.Scene              scene;
+      java.util.Set<RequirementData>  requirementsSet;
+      java.util.List<RequirementData> requirements;
 
       _stage = stage;
       _testSuiteName = testSuiteName;
@@ -68,9 +68,9 @@ final class SelectionWindow
                                   undercamber,
                                   stage );
 
-      requirementsSet = new java.util.HashSet<Requirement>();
+      requirementsSet = new java.util.HashSet<RequirementData>();
       testDataDummyRoot.addRequirementsToSet( requirementsSet );
-      requirements = new java.util.ArrayList<Requirement>();
+      requirements = new java.util.ArrayList<RequirementData>();
       requirements.addAll( requirementsSet );
       java.util.Collections.sort( requirements );
       _requirementsWindow = new RequirementsWindow( "Requirements validated in " + testSuiteName,
@@ -264,6 +264,8 @@ final class SelectionWindow
    {
       javafx.scene.control.Button           selectAllButton;
       javafx.scene.control.Button           deselectAllButton;
+      javafx.scene.control.Button           collapseAllButton;
+      javafx.scene.control.Button           expandAllButton;
       javafx.scene.control.Button           showTagsButton;
       javafx.scene.control.Button           showRequirementsButton;
       javafx.scene.control.Button           resetButton;
@@ -273,6 +275,8 @@ final class SelectionWindow
       javafx.scene.layout.ColumnConstraints column2Constraints;
       javafx.scene.layout.ColumnConstraints column3Constraints;
       javafx.scene.layout.ColumnConstraints column4Constraints;
+      javafx.scene.layout.ColumnConstraints column5Constraints;
+      javafx.scene.layout.ColumnConstraints column6Constraints;
 
       selectAllButton = new javafx.scene.control.Button( "Select All Tests" );
       selectAllButton.setOnAction( event -> _testDataDummyRoot.setRunOnBranch(true,
@@ -281,6 +285,14 @@ final class SelectionWindow
       deselectAllButton = new javafx.scene.control.Button( "Deselect All Tests" );
       deselectAllButton.setOnAction( event -> _testDataDummyRoot.setRunOnBranch(false,
                                                                                 false) );
+
+      expandAllButton = new javafx.scene.control.Button( "Expand All" );
+      expandAllButton.setOnAction( event -> _testDataDummyRoot.setExpandedOnBranch(true,
+                                                                                   true) );
+
+      collapseAllButton = new javafx.scene.control.Button( "Collapse All" );
+      collapseAllButton.setOnAction( event -> _testDataDummyRoot.setExpandedOnBranch(true,
+                                                                                     false) );
 
       showTagsButton = new javafx.scene.control.Button( "Show Tags..." );
       showTagsButton.setOnAction( event -> _tagWindow.show(true) );
@@ -306,21 +318,31 @@ final class SelectionWindow
       column3Constraints = new javafx.scene.layout.ColumnConstraints();
       column3Constraints.setHgrow( javafx.scene.layout.Priority.NEVER );
       column4Constraints = new javafx.scene.layout.ColumnConstraints();
-      column4Constraints.setHgrow( javafx.scene.layout.Priority.ALWAYS );
+      column4Constraints.setHgrow( javafx.scene.layout.Priority.NEVER );
+      column5Constraints = new javafx.scene.layout.ColumnConstraints();
+      column5Constraints.setHgrow( javafx.scene.layout.Priority.NEVER );
+      column6Constraints = new javafx.scene.layout.ColumnConstraints();
+      column6Constraints.setHgrow( javafx.scene.layout.Priority.ALWAYS );
       buttonPane.getColumnConstraints().addAll( column0Constraints,
                                                 column1Constraints,
                                                 column2Constraints,
                                                 column3Constraints,
-                                                column4Constraints );
+                                                column4Constraints,
+                                                column5Constraints,
+                                                column6Constraints );
 
       javafx.scene.layout.GridPane.setConstraints( selectAllButton,        0, 0, 1, 1, javafx.geometry.HPos.RIGHT,  javafx.geometry.VPos.CENTER );
       javafx.scene.layout.GridPane.setConstraints( deselectAllButton,      1, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
-      javafx.scene.layout.GridPane.setConstraints( showTagsButton,         2, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
-      javafx.scene.layout.GridPane.setConstraints( showRequirementsButton, 3, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
-      javafx.scene.layout.GridPane.setConstraints( resetButton,            4, 0, 1, 1, javafx.geometry.HPos.LEFT,   javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( expandAllButton,        2, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( collapseAllButton,      3, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( showTagsButton,         4, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( showRequirementsButton, 5, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( resetButton,            6, 0, 1, 1, javafx.geometry.HPos.LEFT,   javafx.geometry.VPos.CENTER );
 
       buttonPane.getChildren().addAll( selectAllButton,
                                        deselectAllButton,
+                                       expandAllButton,
+                                       collapseAllButton,
                                        showTagsButton,
                                        showRequirementsButton,
                                        resetButton );

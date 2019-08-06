@@ -27,7 +27,7 @@
 package com.undercamber;
 
 /**
- * Indicates haw to handle subtests when a parent test fails.
+ * Indicates how to handle subtests when a parent test fails.
  */
 public enum SubtestContinuationMode
 {

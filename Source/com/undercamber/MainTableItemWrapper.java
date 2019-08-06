@@ -39,7 +39,7 @@ final class MainTableItemWrapper
       for ( TestSet testSet : testSets )
       {
          _children.add( new MainTableItemWrapper(testSet) );
-         _children.add( new MainTableItemWrapper(testSet.getPass1TestData()) );
+         _children.add( new MainTableItemWrapper(testSet.getTestData()) );
       }
    }
 

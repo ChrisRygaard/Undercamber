@@ -36,13 +36,12 @@ public enum SubtestSequencingMode
     */
    CONCURRENT                        ( true,  false, false, true  ),
    /**
-    * Run subtests sequentially.  If a subtest fails, do not run
-    * the remaining subtests.
+    * Run subtests sequentially. If a subtest fails, do not run the remaining subtests.
     */
    SEQUENTIAL_ABORT_SEQUENCE_ON_ERROR( false, true,  true,  false ),
    /**
-    * Run subtests sequentially.  If a subtest fails, continue
-    * running the remaining subtests.
+    * Run subtests sequentially. If a subtest fails, continue running the remaining subtests.  When <tt>SEQUENTIAL_ABORT_SEQUENCE_ON_ERROR</tt> is specified, then Undercamber implicitly considers each
+    * subtest a prerequisite to all following subtests.
     */
    SEQUENTIAL_CONTINUE_ON_ERROR      ( false, true,  false, true  );
 

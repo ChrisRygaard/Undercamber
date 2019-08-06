@@ -44,25 +44,25 @@ final class Finisher
              javafx.stage.Window     ownerWindow,
              Undercamber             undercamber )
    {
-      java.util.List<TestData>    testDataRoots;
-      java.util.Set<TestData>     unsupportiveTestSet;
-      TestData                    testResults;
-      java.util.List<TestData>    unsupportiveTests;
-      java.util.Set<Requirement>  requirementsSet;
-      java.util.List<Requirement> requirementsList;
-      java.io.File                xmlFile;
-      java.io.File                xsdFile;
+      java.util.List<TestData>        testDataRoots;
+      java.util.Set<TestData>         unsupportiveTestSet;
+      TestData                        testResults;
+      java.util.List<TestData>        unsupportiveTests;
+      java.util.Set<RequirementData>  requirementsSet;
+      java.util.List<RequirementData> requirementsList;
+      java.io.File                    xmlFile;
+      java.io.File                    xsdFile;
 
       unsupportiveTestSet = new java.util.HashSet<TestData>();
 
       for ( TestSet testSet : pass1TestSets )
       {
-         testSet.getPass1TestData().setupReferencedRequirementsOnBranch( pass1TestMap.length,
-                                                                         unsupportiveTestSet );
+         testSet.getTestData().setupReferencedRequirementsOnBranch( pass1TestMap.length,
+                                                                    unsupportiveTestSet );
          if ( testSet.shouldRun(true) )
          {
             testResults = testSet.getTestDataFromPersistence();
-            testSet.getPass1TestData().transferResultsFrom( testResults );
+            testSet.getTestData().transferResultsFrom( testResults );
          }
       }
 
@@ -73,19 +73,15 @@ final class Finisher
       testDataRoots = new java.util.ArrayList<TestData>();
       for ( TestSet testSet : pass1TestSets )
       {
-         testDataRoots.add( testSet.getPass1TestData() );
-      }
-      for ( TestSet testSet : pass1TestSets )
-      {
-         testSet.postRunCallback( testDataRoots );
+         testDataRoots.add( testSet.getTestData() );
       }
 
-      requirementsSet = new java.util.HashSet<Requirement>();
+      requirementsSet = new java.util.HashSet<RequirementData>();
       for ( TestSet testSet : pass1TestSets )
       {
-         testSet.getPass1TestData().requirementsCallback( requirementsSet );
+         testSet.getTestData().addRequirementsToSet( requirementsSet );
       }
-      requirementsList = new java.util.ArrayList<Requirement>();
+      requirementsList = new java.util.ArrayList<RequirementData>();
       requirementsList.addAll( requirementsSet );
       java.util.Collections.sort( requirementsList );
 
@@ -155,15 +151,15 @@ final class Finisher
 
                for ( TestSet pass1TestSet : pass1TestSets )
                {
-                  pass1TestSet.getPass1TestData().printTextReport( false,
-                                                                   "",
-                                                                   headingColumnWidth,
-                                                                   printStream );
-                  if ( pass1TestSet.getPass1TestData().getTestState().displayInShortReport() )
+                  pass1TestSet.getTestData().printTextReport( false,
+                                                              "",
+                                                              headingColumnWidth,
+                                                              printStream );
+                  if ( pass1TestSet.getTestData().getTestState().displayInShortReport() )
                   {
                      testSetNames.add( pass1TestSet.getTestSetName() );
-                     headings.add( pass1TestSet.getPass1TestData().getHeading() );
-                     errorCounts.add( pass1TestSet.getPass1TestData().getExceptionCountOnBranch() );
+                     headings.add( pass1TestSet.getTestData().getHeading() );
+                     errorCounts.add( pass1TestSet.getTestData().getExceptionCountOnBranch() );
                      ranFlags.add( true );
                   }
                }
@@ -230,14 +226,14 @@ final class Finisher
 
                for ( TestSet pass1TestSet : pass1TestSets )
                {
-                  pass1TestSet.getPass1TestData().printTextReport( true,
-                                                                   "",
-                                                                   headingColumnWidth,
-                                                                   printStream );
+                  pass1TestSet.getTestData().printTextReport( true,
+                                                              "",
+                                                              headingColumnWidth,
+                                                              printStream );
                   testSetNames.add( pass1TestSet.getTestSetName() );
-                  headings.add( pass1TestSet.getPass1TestData().getHeading() );
-                  errorCounts.add( pass1TestSet.getPass1TestData().getExceptionCountOnBranch() );
-                  ranFlags.add( pass1TestSet.getPass1TestData().getTestState().ran() );
+                  headings.add( pass1TestSet.getTestData().getHeading() );
+                  errorCounts.add( pass1TestSet.getTestData().getExceptionCountOnBranch() );
+                  ranFlags.add( pass1TestSet.getTestData().getTestState().ran() );
                }
 
                printSummary( testSetNames,
@@ -256,14 +252,14 @@ final class Finisher
       }
    }
 
-   final private java.io.File writeXMLFile( String                      suiteName,
-                                            int                         pass1ThreadCount,
-                                            java.util.List<TestSet>     pass1TestSets,
-                                            java.util.List<Requirement> requirementsList,
-                                            java.util.List<TestData>    unsupportiveTests,
-                                            int                         testCount,
-                                            java.io.File                resultsDirectory,
-                                            Undercamber                 undercamber )
+   final private java.io.File writeXMLFile( String                          suiteName,
+                                            int                             pass1ThreadCount,
+                                            java.util.List<TestSet>         pass1TestSets,
+                                            java.util.List<RequirementData> requirementsList,
+                                            java.util.List<TestData>        unsupportiveTests,
+                                            int                             testCount,
+                                            java.io.File                    resultsDirectory,
+                                            Undercamber                     undercamber )
    {
       java.io.File xmlFile;
       int          index;
@@ -290,11 +286,10 @@ final class Finisher
                }
 
                printStream.println( "   <requirements>" );
-               for ( Requirement requirement : requirementsList )
+               for ( RequirementData requirement : requirementsList )
                {
-                  writeRequirementToXML( requirement,
-                                         "      ",
-                                         printStream );
+                  requirement.writeXML( printStream,
+                                        "   " );
                }
                printStream.println( "   </requirements>" );
 
@@ -394,18 +389,6 @@ final class Finisher
       return xsdFile;
    }
 
-   final private static void writeRequirementToXML( Requirement         requirement,
-                                                    String              margin,
-                                                    java.io.PrintStream printStream )
-   {
-      printStream.println( margin + "<requirement>" );
-      printStream.println( margin + "   <id>" + requirement.getRequirementID() + "</id>" );
-      printStream.println( margin + "   <description>" + Utilities.escapeForXML(requirement.getDescription()) + "</description>" );
-      printStream.println( margin + "   <completionStatus>" + requirement.getCompletionState() + "</completionStatus>" );
-      printStream.println( margin + "   <result>" + requirement.getResultsText() + "</result>" );
-      printStream.println( margin + "</requirement>" );
-   }
-
    final private void writeTagsToXML( String                  margin,
                                       java.io.PrintStream     printStream,
                                       java.util.List<TestSet> configurationTestSets )
@@ -418,7 +401,7 @@ final class Finisher
 
       for ( TestSet testSet : configurationTestSets )
       {
-         testSet.getPass1TestData().addToTagMap( tagMap );
+         testSet.getTestData().addToTagMap( tagMap );
       }
 
       tagList = new java.util.ArrayList<String>();

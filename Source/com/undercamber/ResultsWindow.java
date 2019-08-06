@@ -32,25 +32,27 @@ final class ResultsWindow
    final private static String CLASS_PERSISTENCE_BRANCH  = "";
 
    private Undercamber                                              _undercamber;
+   private TestData                                                 _testDataDummyRoot;
    private javafx.stage.Stage                                       _stage;
    private javafx.scene.control.TreeTableView<MainTableItemWrapper> _resultsTree;
-   private javafx.scene.control.TableView<Requirement>              _requirementsTable;
+   private javafx.scene.control.TableView<RequirementData>          _requirementsTable;
    private javafx.scene.control.TableView<TestData>                 _unsupportiveTestsTable;
    private String                                                   _testSuiteName;
    private TagWindow                                                _tagWindow;
 
-   ResultsWindow( String                      testSuiteName,
-                  TestData                    testDataDummyRoot,
-                  java.util.List<TestSet>     testSets,
-                  java.util.List<Requirement> requirements,
-                  java.util.List<TestData>    unsupportiveTests,
-                  java.util.List<String>      commandLineTestParameters,
-                  javafx.stage.Window         ownerWindow,
-                  Undercamber                 undercamber )
+   ResultsWindow( String                          testSuiteName,
+                  TestData                        testDataDummyRoot,
+                  java.util.List<TestSet>         testSets,
+                  java.util.List<RequirementData> requirements,
+                  java.util.List<TestData>        unsupportiveTests,
+                  java.util.List<String>          commandLineTestParameters,
+                  javafx.stage.Window             ownerWindow,
+                  Undercamber                     undercamber )
    {
       javafx.scene.Scene scene;
 
       _undercamber = undercamber;
+      _testDataDummyRoot = testDataDummyRoot;
 
       _stage = new javafx.stage.Stage();
 
@@ -86,13 +88,14 @@ final class ResultsWindow
       readConfiguration();
    }
 
-   final private javafx.scene.layout.Pane makeContents( TestData                    testDataDummyRoot,
-                                                        java.util.List<TestSet>     testSets,
-                                                        java.util.List<Requirement> requirements,
-                                                        java.util.List<TestData>    unsupportiveTests,
-                                                        java.util.List<String>      commandLineTestParameters,
-                                                        javafx.stage.Window         ownerWindow )
+   final private javafx.scene.layout.Pane makeContents( TestData                        testDataDummyRoot,
+                                                        java.util.List<TestSet>         testSets,
+                                                        java.util.List<RequirementData> requirements,
+                                                        java.util.List<TestData>        unsupportiveTests,
+                                                        java.util.List<String>          commandLineTestParameters,
+                                                        javafx.stage.Window             ownerWindow )
    {
+      javafx.scene.layout.Pane              resultsPane;
       javafx.scene.layout.Pane              unsupportiveTestsPane;
       javafx.scene.control.TabPane          tabPane;
       javafx.scene.layout.Pane              buttonPane;
@@ -101,9 +104,9 @@ final class ResultsWindow
       javafx.scene.layout.RowConstraints    row1Constraints;
       javafx.scene.layout.ColumnConstraints column0Constraints;
 
-      makeResultsTree( testSets,
-                       commandLineTestParameters,
-                       ownerWindow );
+      resultsPane = makeResultsPane( testSets,
+                                     commandLineTestParameters,
+                                     ownerWindow );
 
       unsupportiveTestsPane = makeUnsupportiveTestsPane( unsupportiveTests );
 
@@ -111,7 +114,7 @@ final class ResultsWindow
 
       tabPane = new javafx.scene.control.TabPane();
       tabPane.getTabs().add( new javafx.scene.control.Tab("Results",
-                                                          _resultsTree) );
+                                                          resultsPane) );
       tabPane.getTabs().add( new javafx.scene.control.Tab("Requirements",
                                                           _requirementsTable) );
       tabPane.getTabs().add( new javafx.scene.control.Tab("Unsupportive Tests",
@@ -156,9 +159,6 @@ final class ResultsWindow
       tagsButton = new javafx.scene.control.Button( "Tags..." );
       tagsButton.setOnAction( event -> _tagWindow.show(true) );
 
-      tagsButton = new javafx.scene.control.Button( "Tags..." );
-      tagsButton.setOnAction( event -> _tagWindow.show(true) );
-
       buttonPane = new javafx.scene.layout.GridPane();
 
       column0Constraints = new javafx.scene.layout.ColumnConstraints();
@@ -172,11 +172,95 @@ final class ResultsWindow
       row0Constraints.setVgrow( javafx.scene.layout.Priority.ALWAYS );
       buttonPane.getRowConstraints().addAll( row0Constraints );
 
-      javafx.scene.layout.GridPane.setConstraints( closeButton, 0, 0, 1, 1, javafx.geometry.HPos.RIGHT, javafx.geometry.VPos.CENTER );
-      javafx.scene.layout.GridPane.setConstraints( tagsButton,  1, 0, 1, 1, javafx.geometry.HPos.LEFT,  javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( closeButton, 0, 0, 1, 1, javafx.geometry.HPos.RIGHT, javafx.geometry.VPos.CENTER, javafx.scene.layout.Priority.ALWAYS, javafx.scene.layout.Priority.ALWAYS, new javafx.geometry.Insets(5,5,5,5) );
+      javafx.scene.layout.GridPane.setConstraints( tagsButton,  1, 0, 1, 1, javafx.geometry.HPos.LEFT,  javafx.geometry.VPos.CENTER, javafx.scene.layout.Priority.ALWAYS, javafx.scene.layout.Priority.ALWAYS, new javafx.geometry.Insets(5,5,5,5) );
 
       buttonPane.getChildren().addAll( closeButton,
                                        tagsButton );
+
+      return buttonPane;
+   }
+
+   final private javafx.scene.layout.Pane makeResultsPane( java.util.List<TestSet> testSets,
+                                                           java.util.List<String>  commandLineTestParameters,
+                                                           javafx.stage.Window     ownerWindow )
+   {
+      javafx.scene.layout.GridPane          resultsPane;
+      javafx.scene.layout.RowConstraints    row0Constraints;
+      javafx.scene.layout.RowConstraints    row1Constraints;
+      javafx.scene.layout.ColumnConstraints column0Constraints;
+      javafx.scene.layout.Pane              treeButtonPane;
+
+      resultsPane = new javafx.scene.layout.GridPane();
+
+      row0Constraints = new javafx.scene.layout.RowConstraints();
+      row0Constraints.setVgrow( javafx.scene.layout.Priority.ALWAYS );
+      row1Constraints = new javafx.scene.layout.RowConstraints();
+      row1Constraints.setVgrow( javafx.scene.layout.Priority.NEVER );
+      resultsPane.getRowConstraints().addAll( row0Constraints,
+                                              row1Constraints );
+
+      column0Constraints = new javafx.scene.layout.ColumnConstraints();
+      column0Constraints.setHgrow( javafx.scene.layout.Priority.ALWAYS );
+      resultsPane.getColumnConstraints().addAll( column0Constraints );
+
+      treeButtonPane = makeTreeButtonPane();
+
+      makeResultsTree( testSets,
+                       commandLineTestParameters,
+                       ownerWindow );
+
+      javafx.scene.layout.GridPane.setConstraints( _resultsTree,   0, 0, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
+      javafx.scene.layout.GridPane.setConstraints( treeButtonPane, 0, 1, 1, 1, javafx.geometry.HPos.CENTER, javafx.geometry.VPos.CENTER );
+
+      resultsPane.getChildren().addAll( _resultsTree,
+                                        treeButtonPane );
+
+      return resultsPane;
+   }
+
+   final private javafx.scene.layout.Pane makeTreeButtonPane()
+   {
+      javafx.scene.control.Button           expandAllButton;
+      javafx.scene.control.Button           collapseAllButton;
+      javafx.scene.layout.GridPane          buttonPane;
+      javafx.scene.layout.ColumnConstraints column0Constraints;
+      javafx.scene.layout.ColumnConstraints column1Constraints;
+      javafx.scene.layout.RowConstraints    row0Constraints;
+
+      expandAllButton = new javafx.scene.control.Button( "Expand All" );
+      expandAllButton.setOnAction( event -> _testDataDummyRoot.setExpandedOnBranch(false,
+                                                                                   true) );
+
+      collapseAllButton = new javafx.scene.control.Button( "Collapse All" );
+      collapseAllButton.setOnAction( event -> _testDataDummyRoot.setExpandedOnBranch(false,
+                                                                                     false) );
+
+      buttonPane = new javafx.scene.layout.GridPane();
+
+      //                                                                                                                                top                                          right                                        bottom                                       left
+      buttonPane.setBorder( new javafx.scene.layout.Border(new javafx.scene.layout.BorderStroke(                                        javafx.scene.paint.Color.BLACK,              javafx.scene.paint.Color.BLACK,              new javafx.scene.paint.Color(0,0,0,.5),      javafx.scene.paint.Color.BLACK,
+                                                                                                                                        javafx.scene.layout.BorderStrokeStyle.SOLID, javafx.scene.layout.BorderStrokeStyle.SOLID, javafx.scene.layout.BorderStrokeStyle.SOLID, javafx.scene.layout.BorderStrokeStyle.SOLID,
+                                                                                                 javafx.scene.layout.CornerRadii.EMPTY,
+                                                                                                 new javafx.scene.layout.BorderWidths(  0,                                           0,                                           1,                                           0 ),
+                                                                                                 new javafx.geometry.Insets(            0,                                           0,                                           0,                                           0 ) )) );
+
+      column0Constraints = new javafx.scene.layout.ColumnConstraints();
+      column0Constraints.setHgrow( javafx.scene.layout.Priority.ALWAYS );
+      column1Constraints = new javafx.scene.layout.ColumnConstraints();
+      column1Constraints.setHgrow( javafx.scene.layout.Priority.ALWAYS );
+      buttonPane.getColumnConstraints().addAll( column0Constraints,
+                                                column1Constraints );
+
+      row0Constraints = new javafx.scene.layout.RowConstraints();
+      row0Constraints.setVgrow( javafx.scene.layout.Priority.ALWAYS );
+      buttonPane.getRowConstraints().addAll( row0Constraints );
+
+      javafx.scene.layout.GridPane.setConstraints( expandAllButton,   0, 0, 1, 1, javafx.geometry.HPos.RIGHT, javafx.geometry.VPos.CENTER, javafx.scene.layout.Priority.ALWAYS, javafx.scene.layout.Priority.ALWAYS, new javafx.geometry.Insets(5,5,5,5) );
+      javafx.scene.layout.GridPane.setConstraints( collapseAllButton, 1, 0, 1, 1, javafx.geometry.HPos.LEFT,  javafx.geometry.VPos.CENTER, javafx.scene.layout.Priority.ALWAYS, javafx.scene.layout.Priority.ALWAYS, new javafx.geometry.Insets(5,5,5,5) );
+
+      buttonPane.getChildren().addAll( expandAllButton,
+                                       collapseAllButton );
 
       return buttonPane;
    }
@@ -202,7 +286,8 @@ final class ResultsWindow
 
       tableColumn = new javafx.scene.control.TreeTableColumn<MainTableItemWrapper,MainTableItemWrapper>( "Method" );
       tableColumn.setCellValueFactory( param -> new NoOpObservable<MainTableItemWrapper>(param.getValue().getValue()) );
-      tableColumn.setCellFactory( treeTableColumn -> new ResultsTreeCell(commandLineTestParameters,
+      tableColumn.setCellFactory( treeTableColumn -> new ResultsTreeCell(_undercamber,
+                                                                         commandLineTestParameters,
                                                                          ownerWindow) );
       tableColumn.setSortable( false );
       _resultsTree.getColumns().add( tableColumn );
@@ -273,32 +358,32 @@ final class ResultsWindow
       _resultsTree.getColumns().add( tableColumn );
    }
 
-   final private void makeRequirementsTable( java.util.List<Requirement> requirements )
+   final private void makeRequirementsTable( java.util.List<RequirementData> requirements )
    {
-      javafx.scene.control.TableColumn<Requirement,Requirement> tableColumn;
+      javafx.scene.control.TableColumn<RequirementData,RequirementData> tableColumn;
 
-      _requirementsTable = new javafx.scene.control.TableView<Requirement>();
+      _requirementsTable = new javafx.scene.control.TableView<RequirementData>();
 
-      tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "ID" );
-      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+      tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "ID" );
+      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
       tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.ID) );
       tableColumn.setSortable( false );
       _requirementsTable.getColumns().add( tableColumn );
 
-      tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "Description" );
-      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+      tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "Description" );
+      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
       tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.DESCRIPTION) );
       tableColumn.setSortable( false );
       _requirementsTable.getColumns().add( tableColumn );
 
-      tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "State" );
-      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+      tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "State" );
+      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
       tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.COMPLETION_STATE) );
       tableColumn.setSortable( false );
       _requirementsTable.getColumns().add( tableColumn );
 
-      tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "Result" );
-      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+      tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "Result" );
+      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
       tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.RESULT) );
       tableColumn.setSortable( false );
       _requirementsTable.getColumns().add( tableColumn );
@@ -374,7 +459,7 @@ final class ResultsWindow
       java.util.List<javafx.scene.control.TreeTableColumn<MainTableItemWrapper,?>> treeTableColumns;
       int                                                                          loopCount;
       java.util.List<javafx.scene.control.TableColumn<TestData,?>>                 unsupportiveTestsColumns;
-      java.util.List<javafx.scene.control.TableColumn<Requirement,?>>              requirementsColumns;
+      java.util.List<javafx.scene.control.TableColumn<RequirementData,?>>          requirementsColumns;
 
       tagWindowConfigured = false;
 
@@ -542,7 +627,7 @@ final class ResultsWindow
       java.io.File                                                                 configurationFile;
       java.util.List<javafx.scene.control.TreeTableColumn<MainTableItemWrapper,?>> resultsTreeColumns;
       java.util.List<javafx.scene.control.TableColumn<TestData,?>>                 unsupportiveTestsColumns;
-      java.util.List<javafx.scene.control.TableColumn<Requirement,?>>              requirementsColumns;
+      java.util.List<javafx.scene.control.TableColumn<RequirementData,?>>          requirementsColumns;
 
       configurationFile = getConfigurationFile();
 
@@ -573,7 +658,7 @@ final class ResultsWindow
 
                requirementsColumns = _requirementsTable.getColumns();
                dataOutputStream.writeInt( requirementsColumns.size() );
-               for ( javafx.scene.control.TableColumn<Requirement,?> column : requirementsColumns )
+               for ( javafx.scene.control.TableColumn<RequirementData,?> column : requirementsColumns )
                {
                   dataOutputStream.writeDouble( column.getWidth() );
                }

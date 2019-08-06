@@ -102,8 +102,8 @@ final class ExpandBranchCell
 
       if ( mainTableItemWrapper != null )
       {
-         mainTableItemWrapper.getTestData().setExpandOnBranch( _isSelectionWindow,
-                                                               _expand );
+         mainTableItemWrapper.getTestData().setExpandedOnBranch( _isSelectionWindow,
+                                                                 _expand );
       }
    }
 }

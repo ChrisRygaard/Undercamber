@@ -85,7 +85,7 @@ final class SelectionTreeColumnCell
       _gridPane.getChildren().addAll( _checkBox,
                                       _testDataLabel );
 
-      setupPopupMenu();
+      setupPopupMenu( undercamber );
 
       setContextMenu( _popupMenu );
    }
@@ -253,7 +253,7 @@ final class SelectionTreeColumnCell
       }
    }
 
-   final private void setupPopupMenu()
+   final private void setupPopupMenu( Undercamber undercamber )
    {
       _popupMenu = new javafx.scene.control.ContextMenu();
 
@@ -267,7 +267,7 @@ final class SelectionTreeColumnCell
       _runTestSetMenuItem.setOnAction( event -> run(true) );
 
       _viewTestSetMenuItem = new javafx.scene.control.MenuItem( "View test set environment" );
-      _viewTestSetMenuItem.setOnAction( event -> showTestSetWindow() );
+      _viewTestSetMenuItem.setOnAction( event -> showTestSetWindow(undercamber) );
    }
 
    final private void run( boolean runSubtests )
@@ -285,13 +285,13 @@ final class SelectionTreeColumnCell
          }
          else
          {
-            _undercamber.runTest( mainTableItemWrapper.getTestSet().getPass1TestData(),
+            _undercamber.runTest( mainTableItemWrapper.getTestSet().getTestData(),
                                   true );
          }
       }
    }
 
-   final private void showTestSetWindow()
+   final private void showTestSetWindow( Undercamber undercamber )
    {
       MainTableItemWrapper mainTableItemWrapper;
 
@@ -301,7 +301,8 @@ final class SelectionTreeColumnCell
       {
          if ( !(mainTableItemWrapper.isTestData()) )
          {
-            mainTableItemWrapper.getTestSet().getTestSetWindow( _commandLineTestParameters,
+            mainTableItemWrapper.getTestSet().getTestSetWindow( undercamber,
+                                                                _commandLineTestParameters,
                                                                 _ownerWindow ).show();
          }
       }

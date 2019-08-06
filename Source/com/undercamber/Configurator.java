@@ -29,13 +29,13 @@ package com.undercamber;
 /**
  * This class configures a test system in Undercamber.  <p>
  *
- * The strings passed into this class are automatically expanded using environment variables.  To have a string expanded, use the %{...} notation, similar to parameter expansion in Linux.
+ * The strings passed into this class are automatically expanded using environment variables, unless otherwise noted.
+ * To have a string expanded, use the %{...} notation, similar to parameter expansion in Linux.
  *
  * @see ConfigurationCallback
  */
 final public class Configurator
 {
-   private Undercamber                       _undercamber;
    private String                            _suiteName;
    private Integer                           _pass1ThreadCount;
    private Boolean                           _showResultsWindow;
@@ -45,8 +45,7 @@ final public class Configurator
    private ArgumentParser                    _argumentParser;
    private boolean                           _closed;
 
-   Configurator( Undercamber           undercamber,
-                 ConfigurationCallback configurationCallback,
+   Configurator( ConfigurationCallback configurationCallback,
                  ArgumentParser        argumentParser )
       throws javax.xml.parsers.ParserConfigurationException,
              org.xml.sax.SAXException,
@@ -54,8 +53,6 @@ final public class Configurator
              UserError,
              InternalException
    {
-      _undercamber = undercamber;
-
       _argumentParser = argumentParser;
 
       _configurationCallbackClassName = configurationCallback.getClass().getName();
@@ -337,8 +334,7 @@ final public class Configurator
          throw new IllegalAccessError( "Do not alter the configuration after the configuration phase" );
       }
 
-      return new TestSetBuilder( _undercamber,
-                                 _suiteName,
+      return new TestSetBuilder( _suiteName,
                                  this );
    }
 

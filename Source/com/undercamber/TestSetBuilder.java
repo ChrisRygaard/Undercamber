@@ -32,32 +32,30 @@ package com.undercamber;
  * This class configures the environment that is used during the second pass.
  *
  * @see Configurator#getEmptyTestSetBuilder
+ * @see ConfigurationCallback#configure
  */
 final public class TestSetBuilder
 {
-   private Class<? extends TestUnit>    _class;
+   private String                       _className;
    private String                       _testSetName;
    private String                       _testSuiteName;
    private String                       _jvmDirectoryName;
-   private Integer                      _threadCount;
+   private Integer                      _pass2ThreadCount;
    private java.util.List<String>       _testParameters;
    private java.util.List<String>       _javaParameters;
    private java.util.Map<String,String> _environmentVariables;
-   private Undercamber                  _undercamber;
    private Configurator                 _configurator;
 
-   TestSetBuilder( Undercamber  undercamber,
-                   String       testSuiteName,
+   TestSetBuilder( String       testSuiteName,
                    Configurator configurator )
    {
-      _undercamber = undercamber;
       _testSuiteName = testSuiteName;
       _configurator = configurator;
 
       _testSetName = null;
-      _class = null;
+      _className = null;
       _jvmDirectoryName = null;
-      _threadCount = null;
+      _pass2ThreadCount = null;
       _testParameters = new java.util.ArrayList<String>();
       _javaParameters = new java.util.ArrayList<String>();
       _environmentVariables = null;
@@ -76,14 +74,13 @@ final public class TestSetBuilder
          throw new IllegalAccessError( "Do not alter the configuration after the configuration phase" );
       }
 
-      _undercamber = original._undercamber;
       _testSuiteName = original._testSuiteName;
       _configurator = original._configurator;
 
       _testSetName = original._testSetName;
-      _class = original._class;
+      _className = original._className;
       _jvmDirectoryName = original._jvmDirectoryName;
-      _threadCount = original._threadCount;
+      _pass2ThreadCount = original._pass2ThreadCount;
       _testParameters = new java.util.ArrayList<String>();
       _testParameters.addAll( original._testParameters );
       _javaParameters = new java.util.ArrayList<String>();
@@ -172,32 +169,38 @@ final public class TestSetBuilder
    /**
     * Set the name of the top-level test class.  <p>
     *
-    * The specified class must implement {@link TestUnit}.
+    * This is equivalent to <tt>setClassName( type.getName() )</tt>
     *
     * @param type
     *        The top-level class
-    *
-    * @throws UserError
-    *         If the string is not properly formatted for string expansion.
-    *
-    * @throws InternalException
-    *         If there is an internal problem expanding the string.
     */
+   @Deprecated
    final public void setClass( Class<? extends TestUnit> type )
-      throws UserError,
-             InternalException
    {
-      _class = type;
+      _className = type.getName();
+   }
+
+   /**
+    * Set the name of the top-level test class.  <p>
+    *
+    * The specified class must implement {@link TestUnit}.
+    *
+    * @param className
+    *        The name of the top-level class
+    */
+   final public void setClassName( String className )
+   {
+      _className = className;
    }
 
    /**
     * Get the name of the top-level test class.
     *
-    * @return The top-level class
+    * @return The top-level class name
     */
-   final public Class<? extends TestUnit> getTopLevelClass()
+   final public String getTopLevelClassName()
    {
-      return _class;
+      return _className;
    }
 
    /**
@@ -325,12 +328,12 @@ final public class TestSetBuilder
    /**
     * Set the thread count to be used during the second pass.
     *
-    * @param threadCount
+    * @param pass2ThreadCount
     *        The thread count.  If this is null, Undercamber will use a default value.
     */
-   final public void setPass2ThreadCount( Integer threadCount )
+   final public void setPass2ThreadCount( Integer pass2ThreadCount )
    {
-      _threadCount = threadCount;
+      _pass2ThreadCount = pass2ThreadCount;
    }
 
    /**
@@ -340,7 +343,7 @@ final public class TestSetBuilder
     */
    final public Integer getPass2ThreadCount()
    {
-      return _threadCount;
+      return _pass2ThreadCount;
    }
 
    ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1631,12 +1634,11 @@ final public class TestSetBuilder
          }
       }
 
-      _configurator.addTestSetDecriptor( new TestSetDescriptor(_undercamber,
-                                                               _class,
+      _configurator.addTestSetDecriptor( new TestSetDescriptor(_className,
                                                                _testSetName,
                                                                _testSuiteName,
                                                                _jvmDirectoryName,
-                                                               _threadCount,
+                                                               _pass2ThreadCount,
                                                                testParameters,
                                                                javaParameters,
                                                                environmentVariables) );

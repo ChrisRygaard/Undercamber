@@ -26,10 +26,13 @@
 
 package com.undercamber;
 
-final class Utilities
+/**
+ * General-purpose utilities
+ */
+final public class Utilities
 {
    final private static int                               DEBUG_MARGIN_SIZE           = 126;
-   final private static String                            PADDING                     = "                                                                                                                                                               ";
+   final private static String                            PADDING                     = "                                                                                                                                                                  ";
    final         static javafx.scene.input.KeyCombination ESCAPE_KEYBOARD_COMBINATION = new javafx.scene.input.KeyCodeCombination( javafx.scene.input.KeyCode.ESCAPE );
    final         static javafx.scene.input.KeyCombination ENTER_KEYBOARD_COMBINATION  = new javafx.scene.input.KeyCodeCombination( javafx.scene.input.KeyCode.ENTER );
 
@@ -473,7 +476,12 @@ final class Utilities
                                               intersectionMaxY - intersectionMinY );
    }
 
-   final static String whatMethodAmI()
+   /**
+    * Get the name of the method that calls this method.
+    *
+    * @return The method name
+    */
+   final public static String whatMethodAmI()
    {
       StackTraceElement stackTrace[];
 
@@ -482,7 +490,26 @@ final class Utilities
       return stackTrace[2].getClassName() + "." + stackTrace[2].getMethodName() + "()";
    }
 
-   final static String whatLineCalledMe()
+   /**
+    * Get the method name and line number of the source code line that calls this method.
+    *
+    * @return The current method name and line number
+    */
+   final public static String whatLineAmI()
+   {
+      StackTraceElement stackTrace[];
+
+      stackTrace = Thread.currentThread().getStackTrace();
+
+      return stackTrace[2].getClassName() + "." + stackTrace[2].getMethodName() + "() <line " + stackTrace[2].getLineNumber() + ">";
+   }
+
+   /**
+    * Get the method name and line number that called the method that calls this method
+    *
+    * @return The method name and line number
+    */
+   final public static String whatLineCalledMe()
    {
       StackTraceElement stackTrace[];
 
@@ -491,7 +518,13 @@ final class Utilities
       return stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "() <line " + stackTrace[3].getLineNumber() + ">";
    }
 
-   final static void printDebugLine( String note )
+   /**
+    * Print a message to <tt>System.out</tt>, decorated with the method name and source code line number that calls this method.
+    *
+    * @param note
+    *        The note to be displayed
+    */
+   final public static void printDebugLine( String note )
    {
       System.out.println( padToRight(" - "+whatLineCalledMe(),DEBUG_MARGIN_SIZE) + ":  " + note );
    }
@@ -576,26 +609,79 @@ final class Utilities
       }
    }
 
-   final static void printStackTrace()
+   /**
+    * Generate a string version of a formatted stack trace
+    *
+    * @param throwable
+    *        The <tt>Throwable</tt> for which the stack trace is to be generated
+    *
+    * @return The formatted stack trace.
+    */
+   final public static String getStackTrace( Throwable throwable )
+   {
+      StringBuffer stringBuffer;
+
+      stringBuffer = new StringBuffer();
+
+      printStackTrace( throwable,
+                       "",
+                       stringBuffer,
+                       false );
+
+      return stringBuffer.toString();
+   }
+
+   /**
+    * Print (to <tt>System.out</tt>) a formatted stack trace to the line that calls this method.  <p>
+    *
+    * The output will be contiguous, even in a multi-threaded environment.
+    */
+   final public static void printStackTrace()
    {
       printStackTrace( (String)null,
                        System.out );
    }
 
-   final static void printStackTrace( String title )
+   /**
+    * Print (to <tt>System.out</tt>) title and a formatted stack trace to the line that calls this method.  <p>
+    *
+    * The output will be contiguous, even in a multi-threaded environment.
+    *
+    * @param title
+    *        The title
+    */
+   final public static void printStackTrace( String title )
    {
       printStackTrace( title,
                        System.out );
    }
 
-   final static void printStackTrace( java.io.PrintStream printStream )
+   /**
+    * Print (to the specified <tt>PrintStream</tt>) a formatted stack trace to the line that calls this method.  <p>
+    *
+    * The output will be contiguous, even in a multi-threaded environment.
+    *
+    * @param printStream
+    *        The PrintStream to which the stack trace is to be printed
+    */
+   final public static void printStackTrace( java.io.PrintStream printStream )
    {
       printStackTrace( (String)null,
                        printStream );
    }
 
-   final static void printStackTrace( String              title,
-                                      java.io.PrintStream printStream )
+   /**
+    * Print (to the specified <tt>PrintStream</tt>) a title and a formatted stack trace to the line that calls this method.  <p>
+    *
+    * The output will be contiguous, even in a multi-threaded environment.
+    *
+    * @param title
+    *        The title
+    * @param printStream
+    *        The PrintStream to which the stack trace is to be printed
+    */
+   final public static void printStackTrace( String              title,
+                                             java.io.PrintStream printStream )
    {
       StringBuffer      stringBuffer;
       StackTraceElement stackTrace[];
@@ -651,7 +737,15 @@ final class Utilities
       printStream.print( stringBuffer.toString() );
    }
 
-   final static void printStackTrace( Throwable throwable )
+   /**
+    * Print (to <tt>System.out</tt>) a formatted stack trace for the provided <tt>Throwable</tt>.  <p>
+    *
+    * The output will be contiguous, even in a multi-threaded environment.
+    *
+    * @param throwable
+    *        The <tt>Throwable</tt> for which a stack trace is to be printed.
+    */
+   final public static void printStackTrace( Throwable throwable )
    {
       printStackTrace( throwable,
                        "",
@@ -692,25 +786,6 @@ final class Utilities
                        margin,
                        stringBuffer,
                        false );
-   }
-
-   final static void printStackTrace( Throwable throwable,
-                                      boolean   escapeForXML )
-   {
-      printStackTrace( throwable,
-                       "",
-                       System.out,
-                       escapeForXML );
-   }
-
-   final static void printStackTrace( Throwable throwable,
-                                      String    margin,
-                                      boolean   escapeForXML )
-   {
-      printStackTrace( throwable,
-                       margin,
-                       System.out,
-                       escapeForXML );
    }
 
    final static void printStackTrace( Throwable           throwable,

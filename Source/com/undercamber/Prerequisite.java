@@ -46,6 +46,76 @@ final public class Prerequisite
    private PrerequisiteMatchMultiplicity _prerequisiteMatchMultiplicity;
    private boolean                       _satisfied;
 
+   Prerequisite( java.io.DataInputStream dataInputStream )
+      throws java.io.IOException
+   {
+      int numberOfElements;
+      int index;
+
+      if ( dataInputStream.readInt() > CLASS_PERSISTENCE_VERSION )
+      {
+         throw new java.io.IOException( "The database is from a newer version of Undercamber" );
+      }
+      if ( !(dataInputStream.readUTF().equals(CLASS_PERSISTENCE_BRANCH)) )
+      {
+         throw new java.io.IOException( "The database is from an unrecognized branch of Undercamber" );
+      }
+
+      _type = Type.values()[ dataInputStream.readInt() ];
+
+      if ( dataInputStream.readBoolean() )
+      {
+         _className = dataInputStream.readUTF();
+      }
+      else
+      {
+         _className = null;
+      }
+
+      if ( dataInputStream.readBoolean() )
+      {
+         _methodName = dataInputStream.readUTF();
+      }
+      else
+      {
+         _methodName = null;
+      }
+
+      if ( dataInputStream.readBoolean() )
+      {
+         _arguments = dataInputStream.readUTF();
+      }
+      else
+      {
+         _arguments = null;
+      }
+
+      _prerequisiteMatchMultiplicity = PrerequisiteMatchMultiplicity.values()[ dataInputStream.readInt() ];
+
+      _includeSubtests = IncludeSubtests.values()[ dataInputStream.readInt() ];
+
+      if ( dataInputStream.readBoolean() )
+      {
+         _testSetNames = new java.util.ArrayList<String>();
+         numberOfElements = dataInputStream.readInt();
+         for ( index=0; index<numberOfElements; index++ )
+         {
+            if ( dataInputStream.readBoolean() )
+            {
+               _testSetNames.add( dataInputStream.readUTF() );
+            }
+            else
+            {
+               _testSetNames.add( null );
+            }
+         }
+      }
+      else
+      {
+         _testSetNames = null;
+      }
+   }
+
    /**
     * Equivalent to<pre>
     *    Prerequisite( className,
@@ -71,6 +141,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -103,6 +174,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -141,7 +213,8 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -173,6 +246,7 @@ final public class Prerequisite
              includeSubtests,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -211,7 +285,8 @@ final public class Prerequisite
              includeSubtests,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -242,6 +317,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              Type.FIXED,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -277,6 +353,7 @@ final public class Prerequisite
              includeSubtests,
              Type.FIXED,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -312,6 +389,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              Type.FIXED,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -348,6 +426,7 @@ final public class Prerequisite
              includeSubtests,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -390,7 +469,8 @@ final public class Prerequisite
              includeSubtests,
              Type.FIXED,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -429,6 +509,7 @@ final public class Prerequisite
              includeSubtests,
              Type.FIXED,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -460,6 +541,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -497,7 +579,8 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -532,6 +615,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -573,7 +657,8 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -608,6 +693,7 @@ final public class Prerequisite
              includeSubtests,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -649,7 +735,8 @@ final public class Prerequisite
              includeSubtests,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -683,6 +770,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              type,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -721,6 +809,7 @@ final public class Prerequisite
              includeSubtests,
              type,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -759,6 +848,7 @@ final public class Prerequisite
              IncludeSubtests.DONT_INCLUDE_SUBTESTS,
              type,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -798,6 +888,7 @@ final public class Prerequisite
              includeSubtests,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
+             null,
              null );
    }
 
@@ -843,7 +934,8 @@ final public class Prerequisite
              includeSubtests,
              type,
              PrerequisiteMatchMultiplicity.INCLUDE_FIRST_MATCHING_METHOD,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    /**
@@ -885,6 +977,7 @@ final public class Prerequisite
              includeSubtests,
              type,
              prerequisiteMatchMultiplicity,
+             null,
              null );
    }
 
@@ -923,7 +1016,8 @@ final public class Prerequisite
              includeSubtests,
              type,
              prerequisiteMatchMultiplicity,
-             testSetNames );
+             testSetNames,
+             null );
    }
 
    final private void setup( String                        className,
@@ -932,11 +1026,13 @@ final public class Prerequisite
                              IncludeSubtests               includeSubtests,
                              Type                          type,
                              PrerequisiteMatchMultiplicity prerequisiteMatchMultiplicity,
-                             String                        testSetNames[] )
+                             String                        testSetNames[],
+                             int                           deleteMe[] )
    {
       _className = className;
       _methodName = methodName;
       _arguments = arguments;
+      if ( includeSubtests == null ) { Utilities.printStackTrace(); }
       _includeSubtests = includeSubtests;
       _type = type;
       _prerequisiteMatchMultiplicity = prerequisiteMatchMultiplicity;
@@ -952,72 +1048,6 @@ final public class Prerequisite
          {
             _testSetNames.add( testSetName );
          }
-      }
-   }
-
-   Prerequisite( java.io.DataInputStream dataInputStream )
-      throws java.io.IOException
-   {
-      int numberOfElements;
-      int index;
-
-      if ( dataInputStream.readInt() > CLASS_PERSISTENCE_VERSION )
-      {
-         throw new java.io.IOException( "The database is from a newer version of Undercamber" );
-      }
-      if ( !(dataInputStream.readUTF().equals(CLASS_PERSISTENCE_BRANCH)) )
-      {
-         throw new java.io.IOException( "The database is from an unrecognized branch of Undercamber" );
-      }
-
-      if ( dataInputStream.readBoolean() )
-      {
-         _className = dataInputStream.readUTF();
-      }
-      else
-      {
-         _className = null;
-      }
-
-      if ( dataInputStream.readBoolean() )
-      {
-         _methodName = dataInputStream.readUTF();
-      }
-      else
-      {
-         _methodName = null;
-      }
-
-      if ( dataInputStream.readBoolean() )
-      {
-         _arguments = dataInputStream.readUTF();
-      }
-      else
-      {
-         _arguments = null;
-      }
-
-      _prerequisiteMatchMultiplicity = PrerequisiteMatchMultiplicity.values()[ dataInputStream.readInt() ];
-
-      if ( dataInputStream.readBoolean() )
-      {
-         _testSetNames = new java.util.ArrayList<String>();
-         numberOfElements = dataInputStream.readInt();
-         for ( index=0; index<numberOfElements; index++ )
-         {
-            if ( dataInputStream.readBoolean() )
-            {
-               _testSetNames.add( dataInputStream.readUTF() );
-            }
-            else
-            {
-               _testSetNames.add( null );
-            }
-         }
-      }
-      else
-      {
-         _testSetNames = null;
       }
    }
 
@@ -1152,6 +1182,8 @@ final public class Prerequisite
       dataOutputStream.writeInt( CLASS_PERSISTENCE_VERSION );
       dataOutputStream.writeUTF( CLASS_PERSISTENCE_BRANCH );
 
+      dataOutputStream.writeInt( _type.ordinal() );
+
       dataOutputStream.writeBoolean( _className != null );
       if ( _className != null )
       {
@@ -1171,6 +1203,8 @@ final public class Prerequisite
       }
 
       dataOutputStream.writeInt( _prerequisiteMatchMultiplicity.ordinal() );
+
+      dataOutputStream.writeInt( _includeSubtests.ordinal() );
 
       dataOutputStream.writeBoolean( _testSetNames != null );
       if ( _testSetNames != null )

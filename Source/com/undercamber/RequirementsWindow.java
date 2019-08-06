@@ -31,14 +31,14 @@ final class RequirementsWindow
    final private static int    CLASS_PERSISTENCE_VERSION = 0;
    final private static String CLASS_PERSISTENCE_BRANCH  = "";
 
-   private javafx.stage.Stage                          _stage;
-   private javafx.scene.control.Button                 _closeButton;
-   private javafx.scene.control.TableView<Requirement> _table;
+   private javafx.stage.Stage                              _stage;
+   private javafx.scene.control.Button                     _closeButton;
+   private javafx.scene.control.TableView<RequirementData> _table;
 
-   RequirementsWindow( String                      windowTitle,
-                       boolean                     results,
-                       java.util.List<Requirement> requirements,
-                       javafx.stage.Window         ownerWindow )
+   RequirementsWindow( String                          windowTitle,
+                       boolean                         results,
+                       java.util.List<RequirementData> requirements,
+                       javafx.stage.Window             ownerWindow )
    {
       javafx.scene.Scene scene;
 
@@ -61,40 +61,40 @@ final class RequirementsWindow
       _stage.setOnCloseRequest( event -> onCloseRequest() );
    }
 
-   final private javafx.scene.layout.Pane buildContentPane( boolean  results,
-                                                            java.util.List<Requirement> requirements )
+   final private javafx.scene.layout.Pane buildContentPane( boolean                         results,
+                                                            java.util.List<RequirementData> requirements )
    {
-      javafx.scene.control.TableColumn<Requirement,Requirement> tableColumn;
-      javafx.scene.layout.Pane                                  buttonPane;
-      javafx.scene.layout.GridPane                              pane;
-      javafx.scene.layout.ColumnConstraints                     column0Constraints;
-      javafx.scene.layout.RowConstraints                        row0Constraints;
-      javafx.scene.layout.RowConstraints                        row1Constraints;
+      javafx.scene.control.TableColumn<RequirementData,RequirementData> tableColumn;
+      javafx.scene.layout.Pane                                          buttonPane;
+      javafx.scene.layout.GridPane                                      pane;
+      javafx.scene.layout.ColumnConstraints                             column0Constraints;
+      javafx.scene.layout.RowConstraints                                row0Constraints;
+      javafx.scene.layout.RowConstraints                                row1Constraints;
 
-      _table = new javafx.scene.control.TableView<Requirement>();
+      _table = new javafx.scene.control.TableView<RequirementData>();
 
-      tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "ID" );
-      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+      tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "ID" );
+      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
       tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.ID) );
       tableColumn.setSortable( false );
       _table.getColumns().add( tableColumn );
 
-      tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "Description" );
-      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+      tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "Description" );
+      tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
       tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.DESCRIPTION) );
       tableColumn.setSortable( false );
       _table.getColumns().add( tableColumn );
 
       if ( results )
       {
-         tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "State" );
-         tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+         tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "State" );
+         tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
          tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.COMPLETION_STATE) );
          tableColumn.setSortable( false );
          _table.getColumns().add( tableColumn );
 
-         tableColumn = new javafx.scene.control.TableColumn<Requirement,Requirement>( "Result" );
-         tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<Requirement>(cellDataFactory.getValue()) );
+         tableColumn = new javafx.scene.control.TableColumn<RequirementData,RequirementData>( "Result" );
+         tableColumn.setCellValueFactory( cellDataFactory -> new NoOpObservable<RequirementData>(cellDataFactory.getValue()) );
          tableColumn.setCellFactory( column -> new RequirementsTableCell(RequirementsTableCell.CellType.RESULT) );
          tableColumn.setSortable( false );
          _table.getColumns().add( tableColumn );
@@ -155,16 +155,16 @@ final class RequirementsWindow
    final void readConfiguration( java.io.DataInputStream dataInputStream )
       throws java.io.IOException
    {
-      double                                                          x;
-      double                                                          y;
-      double                                                          width;
-      double                                                          height;
-      javafx.geometry.Rectangle2D                                     stageBounds;
-      int                                                             elementCount;
-      java.util.List<Double>                                          columnWidths;
-      int                                                             index;
-      java.util.List<javafx.scene.control.TableColumn<Requirement,?>> columns;
-      int                                                             loopCount;
+      double                                                              x;
+      double                                                              y;
+      double                                                              width;
+      double                                                              height;
+      javafx.geometry.Rectangle2D                                         stageBounds;
+      int                                                                 elementCount;
+      java.util.List<Double>                                              columnWidths;
+      int                                                                 index;
+      java.util.List<javafx.scene.control.TableColumn<RequirementData,?>> columns;
+      int                                                                 loopCount;
 
       if ( dataInputStream.readInt() > CLASS_PERSISTENCE_VERSION )
       {
@@ -243,7 +243,7 @@ final class RequirementsWindow
    final void writeConfiguration( java.io.DataOutputStream dataOutputStream )
       throws java.io.IOException
    {
-      java.util.List<javafx.scene.control.TableColumn<Requirement,?>> columns;
+      java.util.List<javafx.scene.control.TableColumn<RequirementData,?>> columns;
 
       dataOutputStream.writeInt( CLASS_PERSISTENCE_VERSION );
       dataOutputStream.writeUTF( CLASS_PERSISTENCE_BRANCH );
@@ -255,7 +255,7 @@ final class RequirementsWindow
 
       columns = _table.getColumns();
       dataOutputStream.writeInt( columns.size() );
-      for ( javafx.scene.control.TableColumn<Requirement,?> column : columns )
+      for ( javafx.scene.control.TableColumn<RequirementData,?> column : columns )
       {
          dataOutputStream.writeDouble( column.getWidth() );
       }

@@ -37,7 +37,7 @@ public enum OperatingSystem
    OTHER( false, false, false, true );
 
    /**
-    * Indicates the operating system
+    * Indicates the operating system used at run-time.
     */
    final public static OperatingSystem CURRENT = getOperatingSystem();
 

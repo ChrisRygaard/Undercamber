@@ -27,7 +27,7 @@
 package com.undercamber;
 
 final class RequirementsTableCell
-   extends javafx.scene.control.TableCell<Requirement,Requirement>
+   extends javafx.scene.control.TableCell<RequirementData,RequirementData>
 {
    private CellType _cellType;
 
@@ -36,8 +36,8 @@ final class RequirementsTableCell
       _cellType = cellType;
    }
 
-   final public void updateItem( Requirement requirement,
-                                 boolean     empty )
+   final public void updateItem( RequirementData requirement,
+                                 boolean         empty )
    {
       super.updateItem( requirement,
                         empty );
