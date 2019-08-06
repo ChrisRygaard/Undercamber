@@ -2,5 +2,5 @@ cd ${UNDERCAMBER_PROJECT_ROOT}
 
 ant -noclasspath All
 
-"${JAVA_HOME}/bin/java" -cp ${UNDERCAMBER_PROJECT_ROOT}/Source:${UNDERCAMBER_PROJECT_ROOT}/Test com.undercamber.Undercamber -config com.undercamber.test.omnibus.ConfigurationCallback
+"${JAVA_HOME}/bin/java" -cp ${UNDERCAMBER_PROJECT_ROOT}/Source:${UNDERCAMBER_PROJECT_ROOT}/Test com.undercamber.Undercamber -config com.undercamber.test.omnibus.ConfigurationCallback $1 $2 $3 $4 $5 $6 $7 $8 $9
 
